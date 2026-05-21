@@ -1,6 +1,6 @@
 # 🎬 EasyEnglish
 
-> Aprenda idiomas de verdade — com as frases e palavras dos vídeos que você já assiste.
+> Aprenda idiomas com as frases e palavras dos vídeos que você já assiste.
 
 Sistema composto por uma **extensão para Google Chrome** e uma **aplicação web**, que trabalham juntas para transformar as legendas dos vídeos do YouTube em flashcards organizados para estudo de idiomas.
 

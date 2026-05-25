@@ -7,3 +7,4 @@
 2.    002 - XXXXXXXXXXX - Backlog EasyEnglish
 3.    003 - XXXXXXXXXXX - Wireframe
 4.    004 - XXXXXXXXXXX - Definição da Stack Tecnológica
+5.    005 - XXXXXXXXXXX - Criação de Tasks para as Storys

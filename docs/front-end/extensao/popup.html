@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>EasyEnglish</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+
+  <div class="card">
+
+    <!-- Linha: toggle Ativar + feedback de erro -->
+    <div class="top-row">
+      <label class="toggle-label">
+        <span>Ativar</span>
+        <div class="toggle">
+          <input type="checkbox" id="toggleActive">
+          <span class="slider"></span>
+        </div>
+      </label>
+      <div id="feedback" class="feedback hidden"></div>
+    </div>
+
+    <!-- Frase -->
+    <input
+      type="text"
+      id="phraseField"
+      class="input"
+      placeholder="Frase"
+    >
+
+    <!-- Tradução -->
+    <input
+      type="text"
+      id="translationField"
+      class="input"
+      placeholder="Tradução"
+    >
+
+    <!-- Dropdown Baralho -->
+    <select id="deckSelect" class="input select">
+      <option value="" disabled selected>Baralho</option>
+      <option value="geral">Geral</option>
+      <option value="frases">Frases do dia a dia</option>
+      <option value="phrasal">Phrasal Verbs</option>
+      <option value="vocab">Vocabulário</option>
+    </select>
+
+    <!-- Enviar -->
+    <button id="sendBtn" class="btn-send">Enviar</button>
+
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

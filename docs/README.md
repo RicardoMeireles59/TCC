@@ -5,6 +5,6 @@
 # Índice: 
 1.    001 - XXXXXXXXXXX - DER Diagrama de Entidade-Relacionamento
 2.    002 - XXXXXXXXXXX - Backlog EasyEnglish
-3.    003 - XXXXXXXXXXX - Wireframe
+3.    003 - XXXXXXXXXXX - Wireframe EasyEnglish
 4.    004 - XXXXXXXXXXX - Definição da Stack Tecnológica
 5.    005 - XXXXXXXXXXX - Criação de Tasks para as Storys

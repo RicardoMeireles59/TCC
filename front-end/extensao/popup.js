@@ -1,6 +1,8 @@
-/**
- * EasyEnglish – popup.js (versão simples)
- */
+// EasyEnglish – popup.js
+// Popup serve apenas para inserção manual de flashcards.
+// A captura de legendas ocorre automaticamente em background.
+
+const API_BASE = 'http://localhost:8000/extensao';
 
 document.addEventListener('DOMContentLoaded', async () => {
 
@@ -34,7 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     deckSelect.classList.toggle('has-value', deckSelect.value !== '');
   });
 
-  // ── Enviar ─────────────────────────────────────────────────────────────────
+  // ── Enviar flashcard manual ────────────────────────────────────────────────
   sendBtn.addEventListener('click', async () => {
     const phrase      = phraseField.value.trim();
     const translation = transField.value.trim();
@@ -49,15 +51,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     sendBtn.textContent = 'Enviando…';
 
     try {
-      // ── Substitua pela sua chamada de API real: ──────────────────────────
-      // await fetch('https://suaapi.com/flashcard', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ phrase, translation, deck })
-      // });
-      // ────────────────────────────────────────────────────────────────────
+      const res = await fetch(`${API_BASE}/flashcards/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phrase, translation, deck }),
+      });
 
-      await delay(700); // simulação — remova em produção
+      if (!res.ok) throw new Error();
 
       showFeedback('✓ Flashcard salvo!', 'success');
       phraseField.value = '';
@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       deckSelect.value  = '';
       deckSelect.classList.remove('has-value');
     } catch {
-      showFeedback('Erro ao enviar. Tente novamente.', 'error');
+      showFeedback('Erro ao enviar. Backend offline?', 'error');
     } finally {
       sendBtn.disabled = false;
       sendBtn.textContent = 'Enviar';
@@ -80,9 +80,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     feedback._timer = setTimeout(() => {
       feedback.className = 'feedback hidden';
     }, 3000);
-  }
-
-  function delay(ms) {
-    return new Promise(r => setTimeout(r, ms));
   }
 });

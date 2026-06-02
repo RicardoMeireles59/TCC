@@ -2,143 +2,103 @@
 <html lang="pt-BR">
 
 <head>
-
-    <meta charset="UTF-8">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Sistema de Flashcards</title>
-
-    <link rel="stylesheet" href="style.css">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EasyEnglish – Flashcards</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <h1>Sistema de Revisão de Flashcards</h1>
+  <!-- Alternar tema dark / white -->
+  <button class="theme-toggle" id="themeToggle">☀️ White</button>
 
-    <!-- BARRA SUPERIOR -->
+  <!-- Header -->
+  <div class="header">
+    <span class="logo">Easy<span>English</span></span>
+    <span class="subtitle">Sistema de Revisão de Flashcards</span>
+  </div>
 
-    <div class="barra-status">
+  <!-- Barra de status -->
+  <div class="barra-status">
+    <div class="status-card acertos">
+      <h2 id="total-acertos">0</h2>
+      <p>Acertos</p>
+    </div>
+    <div class="status-card revisao">
+      <h2 id="total-revisao">0</h2>
+      <p>Revisões</p>
+    </div>
+    <div class="status-card erros">
+      <h2 id="total-erros">0</h2>
+      <p>Erros</p>
+    </div>
+  </div>
 
-        <div class="status-card acertos">
+  <!-- Contador -->
+  <div class="contador">
+    Card <span id="card-atual">1</span> de <span id="total-cards">1</span>
+  </div>
 
-            <h2 id="total-acertos">0</h2>
+  <!-- Flashcard -->
+  <div class="review-container">
+    <div class="flashcard" id="flashcard" onclick="virarCard()">
+      <div id="card">
 
-            <p>Acertos</p>
-
+        <!-- Frente -->
+        <div class="front">
+          <span class="face-label">Pergunta</span>
+          <p id="pergunta-card"></p>
+          <span class="flip-hint">clique para ver a resposta</span>
         </div>
 
-        <div class="status-card revisao">
-
-            <h2 id="total-revisao">0</h2>
-
-            <p>Revisões</p>
-
+        <!-- Verso -->
+        <div class="back">
+          <span class="face-label">Resposta</span>
+          <p id="resposta-card"></p>
         </div>
 
-        <div class="status-card erros">
-
-            <h2 id="total-erros">0</h2>
-
-            <p>Erros</p>
-
-        </div>
-
+      </div>
     </div>
+  </div>
 
-    <!-- CONTADOR -->
+  <!-- Controles de navegação -->
+  <div class="controles">
+    <button onclick="cardAnterior()">← Anterior</button>
+    <button class="btn-virar" onclick="virarCard()">Virar Card</button>
+    <button onclick="proximoCard()">Próximo →</button>
+  </div>
 
-    <div class="contador">
+  <!-- Botões de resultado -->
+  <div class="status-resposta">
+    <button class="acertou-btn" onclick="marcarAcerto()">Acertei</button>
+    <button class="revisar-btn" onclick="marcarRevisao()">Revisar</button>
+    <button class="errou-btn"   onclick="marcarErro()">Errei</button>
+  </div>
 
-        Card
-        <span id="card-atual">1</span>
-        de
-        <span id="total-cards">1</span>
+  <script src="script.js"></script>
+  <script>
+    // Tema dark/white (espelha o comportamento do login)
+    const themeToggle = document.getElementById('themeToggle');
+    const saved = localStorage.getItem('theme') || 'dark';
+    applyTheme(saved);
 
-    </div>
+    themeToggle.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      applyTheme(current === 'dark' ? 'white' : 'dark');
+    });
 
-    <!-- ÁREA DE REVISÃO -->
-
-    <div class="review-container">
-
-        <div class="flashcard" id="flashcard">
-
-            <div class="card" id="card">
-
-                <!-- FRENTE -->
-
-                <div class="front">
-
-                    <h2>Pergunta</h2>
-
-                    <p id="pergunta-card"></p>
-
-                </div>
-
-                <!-- VERSO -->
-
-                <div class="back">
-
-                    <h2>Resposta</h2>
-
-                    <p id="resposta-card"></p>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <!-- BOTÕES -->
-
-    <div class="controles">
-
-        <button onclick="cardAnterior()">
-            ⬅ Anterior
-        </button>
-
-        <button onclick="virarCard()">
-            🔄 Virar Card
-        </button>
-
-        <button onclick="proximoCard()">
-            Próximo ➡
-        </button>
-
-    </div>
-
-    <!-- STATUS -->
-
-    <div class="status-resposta">
-
-        <button
-            class="acertou-btn"
-            onclick="marcarAcerto()"
-        >
-            Acertei
-        </button>
-
-        <button
-            class="revisar-btn"
-            onclick="marcarRevisao()"
-        >
-            Revisar
-        </button>
-
-        <button
-            class="errou-btn"
-            onclick="marcarErro()"
-        >
-            Errei
-        </button>
-
-    </div>
-
-    <script src="script.js"></script>
+    function applyTheme(t) {
+      if (t === 'white') {
+        document.documentElement.setAttribute('data-theme', 'white');
+        themeToggle.textContent = '🌙 Dark';
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+        themeToggle.textContent = '☀️ White';
+      }
+      localStorage.setItem('theme', t);
+    }
+  </script>
 
 </body>
-
 </html>

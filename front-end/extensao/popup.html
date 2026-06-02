@@ -9,16 +9,26 @@
 
 <body>
 
+  <!-- Alternar tema dark / white -->
+  <button class="theme-toggle" id="themeToggle">☀️ White</button>
+
   <div class="card">
 
-    <!-- Linha: toggle Ativar + feedback de erro -->
+    <!-- Logo -->
+    <div class="header">
+      <span class="logo">Easy<span>English</span></span>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Toggle Ativar + Feedback -->
     <div class="top-row">
       <label class="toggle-label">
-        <span>Ativar</span>
         <div class="toggle">
           <input type="checkbox" id="toggleActive">
           <span class="slider"></span>
         </div>
+        <span>Ativar captura</span>
       </label>
       <div id="feedback" class="feedback hidden"></div>
     </div>
@@ -29,7 +39,7 @@
     <!-- Tradução -->
     <input type="text" id="translationField" class="input" placeholder="Tradução">
 
-    <!-- Dropdown Baralho -->
+    <!-- Baralho -->
     <select id="deckSelect" class="input select">
       <option value="" disabled selected>Baralho</option>
       <option value="geral">Geral</option>
@@ -42,6 +52,30 @@
     <button id="sendBtn" class="btn-send">Enviar</button>
 
   </div>
+
+  <script>
+    // Tema dark/white — sincroniza com o login via chrome.storage
+    const themeToggle = document.getElementById('themeToggle');
+
+    chrome.storage.local.get('theme', ({ theme }) => applyTheme(theme || 'dark'));
+
+    themeToggle.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      const next = current === 'dark' ? 'white' : 'dark';
+      applyTheme(next);
+      chrome.storage.local.set({ theme: next });
+    });
+
+    function applyTheme(t) {
+      if (t === 'white') {
+        document.documentElement.setAttribute('data-theme', 'white');
+        themeToggle.textContent = '🌙 Dark';
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+        themeToggle.textContent = '☀️ White';
+      }
+    }
+  </script>
 
   <script src="popup.js"></script>
 </body>

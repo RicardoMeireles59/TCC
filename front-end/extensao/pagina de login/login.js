@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       func: () => window.getSelection()?.toString().trim() || ''
     });
     const sel = result?.result || '';
-    if (sel && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sel)) {
+    if (sel) {
       emailField.value = sel;
       passwordField.focus();
     }
@@ -64,11 +64,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const password = passwordField.value;
 
     if (!email || !password) {
-      showFeedback('Preencha e-mail e senha.', 'error');
-      return;
-    }
-    if (!isValidEmail(email)) {
-      showFeedback('E-mail inválido.', 'error');
+      showFeedback('Preencha usuário e senha.', 'error');
       return;
     }
 
@@ -76,19 +72,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     loginBtn.textContent = 'Entrando…';
 
     try {
-      // ── Substitua pelo fetch real: ───────────────────────────────────────
-      // const res = await fetch('https://suaapi.com/auth/login', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ email, password })
-      // });
-      // if (!res.ok) throw new Error('Credenciais inválidas.');
-      // const { token } = await res.json();
-      // await chrome.storage.local.set({ authToken: token, userEmail: email, loggedIn: true });
-      // ────────────────────────────────────────────────────────────────────
-
-      await delay(800); // simulação — remova em produção
-      await chrome.storage.local.set({ userEmail: email, loggedIn: true });
+      const res = await fetch('http://localhost:8000/extensao/auth/token/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: email, password }),
+      });
+      if (!res.ok) throw new Error('Credenciais inválidas. Verifique usuário e senha.');
+      const { token } = await res.json();
+      await chrome.storage.local.set({ authToken: token, userEmail: email, loggedIn: true });
 
       showFeedback('✓ Login realizado!', 'success');
       setTimeout(() => { window.location.href = '../popup.html'; }, 1000);
@@ -125,10 +116,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     feedback._timer = setTimeout(() => {
       feedback.className = 'feedback hidden';
     }, 3000);
-  }
-
-  function isValidEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 
   function delay(ms) {

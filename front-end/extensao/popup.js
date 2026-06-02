@@ -13,6 +13,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   const sendBtn     = document.getElementById('sendBtn');
   const feedback    = document.getElementById('feedback');
 
+  // ── Token de autenticação — redireciona para login se não existir ─────────
+  const { authToken } = await chrome.storage.local.get('authToken');
+
+  if (!authToken) {
+    window.location.href = 'pagina de login/login.html';
+    return;
+  }
+
+  function authHeaders() {
+    return {
+      'Content-Type': 'application/json',
+      ...(authToken ? { 'Authorization': `Token ${authToken}` } : {}),
+    };
+  }
+
   // ── Tenta preencher frase com texto selecionado na página ──────────────────
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   try {
@@ -20,7 +35,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       target: { tabId: tab.id },
       func: () => window.getSelection()?.toString().trim() || ''
     });
-    if (result?.result) phraseField.value = result.result;
+    if (result?.result) {
+      phraseField.value = result.result;
+      autoTranslate(result.result);
+    }
   } catch {}
 
   // ── Estado do toggle (persistido) ─────────────────────────────────────────
@@ -35,6 +53,36 @@ document.addEventListener('DOMContentLoaded', async () => {
   deckSelect.addEventListener('change', () => {
     deckSelect.classList.toggle('has-value', deckSelect.value !== '');
   });
+
+  // ── Auto-tradução ao sair do campo de frase ───────────────────────────────
+  phraseField.addEventListener('blur', () => {
+    const phrase = phraseField.value.trim();
+    if (phrase && !transField.value.trim()) {
+      autoTranslate(phrase);
+    }
+  });
+
+  async function autoTranslate(phrase) {
+    if (!phrase) return;
+    transField.placeholder = 'Traduzindo…';
+    try {
+      const res = await fetch(`${API_BASE}/traducao/`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ text: phrase }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        transField.value = data.translated;
+      } else if (res.status === 401) {
+        showFeedback('Sessão expirada. Faça login novamente.', 'error');
+      }
+    } catch {
+      // silencia erros de rede na auto-tradução
+    } finally {
+      transField.placeholder = '';
+    }
+  }
 
   // ── Enviar flashcard manual ────────────────────────────────────────────────
   sendBtn.addEventListener('click', async () => {
@@ -53,10 +101,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       const res = await fetch(`${API_BASE}/flashcards/`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders(),
         body: JSON.stringify({ phrase, translation, deck }),
       });
 
+      if (res.status === 401) {
+        showFeedback('Sessão expirada. Faça login novamente.', 'error');
+        return;
+      }
       if (!res.ok) throw new Error();
 
       showFeedback('✓ Flashcard salvo!', 'success');

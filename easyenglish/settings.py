@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
 
@@ -56,6 +57,7 @@ REST_FRAMEWORK = {
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -134,3 +136,6 @@ STATIC_URL = 'static/'
 # MyMemory (tradução) — opcional: informe um e-mail para aumentar o limite diário
 # Sem e-mail: 5.000 chars/dia | Com e-mail: 50.000 chars/dia
 MYMEMORY_EMAIL = ''
+
+# CORS — permite que a extensão Chrome acesse a API local em desenvolvimento
+CORS_ALLOW_ALL_ORIGINS = True

@@ -1,4 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
+
+    // --- SISTEMA DE TEMA (DARK/LIGHT MODE) ---
+    // Verifica se o usuário já salvou preferência de tema antes
+    const savedTheme = localStorage.getItem('easyEnglish_theme') || 'dark';
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+    }
+
+    // Cria a função global para alternar o tema
+    window.toggleTheme = function() {
+        document.body.classList.toggle('light-theme');
+        const isLight = document.body.classList.contains('light-theme');
+        localStorage.setItem('easyEnglish_theme', isLight ? 'light' : 'dark');
+    };
+
     // --- NAVEGAÇÃO DE TELAS ---
     const screenLogin = document.getElementById('screen-login');
     const screenRegister = document.getElementById('screen-register');
@@ -122,13 +137,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const termsLabel = document.querySelector('label[for="reg-terms"]');
         if (!termsCheckbox.checked) {
-            termsLabel.style.color = '#ff4a4a'; isValid = false;
+            // Alterado de '#ff4a4a' para utilizar a variável do design system
+            termsLabel.style.color = 'var(--status-error)'; isValid = false;
         } else {
-            termsLabel.style.color = '#777'; 
+            // Alterado de '#777' para a variável do design system
+            termsLabel.style.color = 'var(--text-muted)'; 
         }
 
         termsCheckbox.addEventListener('change', function() {
-            if (this.checked) termsLabel.style.color = '#777';
+            if (this.checked) termsLabel.style.color = 'var(--text-muted)';
         });
 
         // Se o formulário estiver correto, persiste no localStorage

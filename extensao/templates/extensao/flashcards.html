@@ -169,15 +169,9 @@
         {% if s.video_id %}<div class="sentence-meta">vídeo: {{ s.video_id }}</div>{% endif %}
       </div>
       <div class="sentence-actions">
-        <button class="btn-action btn-save" onclick="saveAsFlashcard({{ s.id }}, this)">
-          + Flashcard
-        </button>
-        <button class="btn-action btn-skip" onclick="markReviewed({{ s.id }}, this)">
-          Pular
-        </button>
-        <button class="btn-action btn-discard" onclick="markReviewed({{ s.id }}, this)">
-          Descartar
-        </button>
+        <button class="btn-action btn-save" data-action="save">+ Flashcard</button>
+        <button class="btn-action btn-skip" data-action="skip">Pular</button>
+        <button class="btn-action btn-discard" data-action="discard">Descartar</button>
       </div>
     </div>
     {% empty %}
@@ -217,43 +211,58 @@
     }
   }
 
-  async function markReviewed(id, btn) {
-    btn.disabled = true;
-    await fetch(`/extensao/api/sentences/${id}/`, {
+  async function patchSentence(id, payload) {
+    return fetch(`/extensao/api/sentences/${id}/`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
-      body: JSON.stringify({ reviewed: true }),
+      body: JSON.stringify(payload),
     });
-    removeCard(id);
   }
 
-  async function saveAsFlashcard(id, btn) {
-    btn.disabled = true;
-    btn.textContent = '…';
-    const card = document.querySelector(`.sentence-card[data-id="${id}"]`);
-    const en = card.querySelector('.sentence-en').textContent.trim();
-    const ptEl = card.querySelector('.sentence-pt');
-    const pt = ptEl ? ptEl.textContent.trim() : '';
+  document.getElementById('sentenceList').addEventListener('click', async (e) => {
+    const btn = e.target.closest('button[data-action]');
+    if (!btn || btn.disabled) return;
+    const card = btn.closest('.sentence-card');
+    const id = parseInt(card.dataset.id, 10);
+    const action = btn.dataset.action;
 
-    const res = await fetch('/extensao/api/flashcards/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
-      body: JSON.stringify({ phrase: en, translation: pt, deck: 'frases' }),
-    });
-
-    if (res.ok) {
-      await fetch(`/extensao/api/sentences/${id}/`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
-        body: JSON.stringify({ reviewed: true, saved_as_flashcard: true }),
-      });
+    if (action === 'skip') {
+      // Esconde só nesta sessão; frase permanece pendente no banco.
       removeCard(id);
-      location.reload();
-    } else {
-      btn.disabled = false;
-      btn.textContent = '+ Flashcard';
+      return;
     }
-  }
+
+    btn.disabled = true;
+
+    if (action === 'discard') {
+      await patchSentence(id, { reviewed: true });
+      removeCard(id);
+      return;
+    }
+
+    if (action === 'save') {
+      const original = btn.textContent;
+      btn.textContent = '…';
+      const en = card.querySelector('.sentence-en').textContent.trim();
+      const ptEl = card.querySelector('.sentence-pt');
+      const pt = ptEl ? ptEl.textContent.trim() : '';
+
+      const res = await fetch('/extensao/api/flashcards/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+        body: JSON.stringify({ phrase: en, translation: pt, deck: 'frases' }),
+      });
+
+      if (res.ok) {
+        await patchSentence(id, { reviewed: true, saved_as_flashcard: true });
+        removeCard(id);
+        location.reload();
+      } else {
+        btn.disabled = false;
+        btn.textContent = original;
+      }
+    }
+  });
 </script>
 
 </body>

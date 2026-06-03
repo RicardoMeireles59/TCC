@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     loginBtn.textContent = 'Entrando…';
 
     try {
-      const res = await fetch('http://localhost:8000/extensao/auth/token/', {
+      const res = await fetch('http://localhost:8000/extensao/api/token/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: email, password }),
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       await chrome.storage.local.set({ authToken: token, userEmail: email, loggedIn: true });
 
       showFeedback('✓ Login realizado!', 'success');
-      setTimeout(() => { window.location.href = '../popup.html'; }, 1000);
+      setTimeout(() => { window.location.href = '../pagina_flashcards/popup.html'; }, 1000);
 
     } catch (err) {
       showFeedback(err.message || 'Erro ao entrar. Tente novamente.', 'error');

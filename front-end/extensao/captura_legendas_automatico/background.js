@@ -13,6 +13,13 @@ function parseCaptionJson(data) {
     .filter(c => c.text);
 }
 
+async function getAuthHeaders() {
+  const { authToken } = await chrome.storage.local.get('authToken');
+  return authToken
+    ? { 'Content-Type': 'application/json', 'Authorization': `Token ${authToken}` }
+    : { 'Content-Type': 'application/json' };
+}
+
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.local.set({ active: true });
 });
@@ -39,27 +46,31 @@ chrome.runtime.onMessage.addListener((msg, sender, respond) => {
 
   // ── Recebe par EN+PT do content script e envia ao backend Django ───────────
   if (msg.type === 'CAPTION_PAIR') {
-    fetch(`${API_BASE}/legendas/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        en:       msg.en,
-        pt:       msg.pt,
-        video_id: msg.videoId || '',
-      }),
-    }).catch(() => {});
+    getAuthHeaders().then(headers => {
+      fetch(`${API_BASE}/api/captions/`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          en:       msg.en,
+          pt:       msg.pt,
+          video_id: msg.videoId || '',
+        }),
+      }).catch(() => {});
+    });
     return true;
   }
 
   // ── Flashcard manual enviado pelo popup ────────────────────────────────────
   if (msg.type === 'SAVE_FLASHCARD') {
-    fetch(`${API_BASE}/flashcards/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(msg.flashcard),
-    })
-      .then(() => respond({ ok: true }))
-      .catch(() => respond({ ok: false }));
+    getAuthHeaders().then(headers => {
+      fetch(`${API_BASE}/api/flashcards/`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(msg.flashcard),
+      })
+        .then(() => respond({ ok: true }))
+        .catch(() => respond({ ok: false }));
+    });
     return true;
   }
 });

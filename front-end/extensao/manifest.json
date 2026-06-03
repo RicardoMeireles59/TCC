@@ -6,7 +6,7 @@
   "permissions": ["activeTab", "storage", "scripting"],
   "host_permissions": ["*://*.youtube.com/*", "*://*/*"],
   "action": {
-    "default_popup": "popup.html",
+    "default_popup": "pagina_flashcards/popup.html",
     "default_icon": {
       "16":  "icons/icon16.png",
       "48":  "icons/icon48.png",
@@ -16,12 +16,12 @@
   "content_scripts": [
     {
       "matches": ["*://*.youtube.com/*"],
-      "js": ["content.js"],
+      "js": ["captura_legendas_automatico/content.js"],
       "run_at": "document_idle"
     }
   ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "captura_legendas_automatico/background.js"
   },
   "icons": {
     "16":  "icons/icon16.png",

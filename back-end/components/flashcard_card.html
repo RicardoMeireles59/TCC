@@ -1,0 +1,51 @@
+<div class="bg-white p-4 rounded shadow">
+
+    <img
+        src="{{ flashcard.video.thumbnail }}"
+        class="w-full rounded mb-4"
+    >
+
+    <h2 class="font-bold text-lg mb-2">
+        {{ flashcard.video.title }}
+    </h2>
+
+    <p class="mb-2">
+        {{ flashcard.english_text }}
+    </p>
+
+    <p class="text-gray-600 mb-4">
+        {{ flashcard.portuguese_text }}
+    </p>
+
+    <form
+        method="POST"
+        action="{% url 'update_flashcard_status' flashcard.id %}"
+    >
+
+        {% csrf_token %}
+
+        <select
+            name="status"
+            class="border p-2 rounded w-full mb-2"
+        >
+            <option value="new">Novo</option>
+            <option value="learning">Aprendendo</option>
+            <option value="reviewed">Revisado</option>
+        </select>
+
+        <input
+            type="number"
+            name="progress"
+            value="{{ flashcard.progress }}"
+            min="0"
+            max="100"
+            class="border p-2 rounded w-full mb-2"
+        >
+
+        <button class="bg-blue-600 text-white px-4 py-2 rounded">
+            Atualizar
+        </button>
+
+    </form>
+
+</div>

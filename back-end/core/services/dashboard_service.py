@@ -2,19 +2,19 @@ from extensao.models import Flashcard
 
 
 def get_dashboard_flashcards(user, request):
-    flashcards = Flashcard.objects.select_related("video").filter(user=user)
+    flashcards = Flashcard.objects.filter(user=user)
 
     search = request.GET.get("search")
-    status = request.GET.get("status")
+    deck = request.GET.get("deck")
     ordering = request.GET.get("ordering")
 
     if search:
         flashcards = flashcards.filter(
-            english_text__icontains=search
+            phrase__icontains=search
         )
 
-    if status:
-        flashcards = flashcards.filter(status=status)
+    if deck:
+        flashcards = flashcards.filter(deck=deck)
 
     if ordering:
         flashcards = flashcards.order_by(ordering)

@@ -72,13 +72,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     loginBtn.textContent = 'Entrando…';
 
     try {
+      const body = JSON.stringify({ username: email, password });
+      console.log('[LOGIN] Posting to token endpoint, body:', body);
       const res = await fetch('http://localhost:8000/extensao/api/token/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: email, password }),
+        body,
       });
-      if (!res.ok) throw new Error('Credenciais inválidas. Verifique usuário e senha.');
-      const { token } = await res.json();
+      console.log('[LOGIN] Response status:', res.status, res.statusText);
+      const responseText = await res.text();
+      console.log('[LOGIN] Response body:', responseText);
+      if (!res.ok) throw new Error('Credenciais inválidas. Verifique usuário e senha. (HTTP ' + res.status + ')');
+      const { token } = JSON.parse(responseText);
       await chrome.storage.local.set({ authToken: token, userEmail: email, loggedIn: true });
 
       showFeedback('✓ Login realizado!', 'success');

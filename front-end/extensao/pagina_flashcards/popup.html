@@ -53,30 +53,6 @@
 
   </div>
 
-  <script>
-    // Tema dark/white — sincroniza com o login via chrome.storage
-    const themeToggle = document.getElementById('themeToggle');
-
-    chrome.storage.local.get('theme', ({ theme }) => applyTheme(theme || 'dark'));
-
-    themeToggle.addEventListener('click', () => {
-      const current = document.documentElement.getAttribute('data-theme') || 'dark';
-      const next = current === 'dark' ? 'white' : 'dark';
-      applyTheme(next);
-      chrome.storage.local.set({ theme: next });
-    });
-
-    function applyTheme(t) {
-      if (t === 'white') {
-        document.documentElement.setAttribute('data-theme', 'white');
-        themeToggle.textContent = '🌙 Dark';
-      } else {
-        document.documentElement.removeAttribute('data-theme');
-        themeToggle.textContent = '☀️ White';
-      }
-    }
-  </script>
-
   <script src="popup.js"></script>
 </body>
 

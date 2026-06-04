@@ -1,108 +1,140 @@
-import requests as http_client
-from django.conf import settings
-from django.http import JsonResponse
-from lingua import Language, LanguageDetectorBuilder
+import re
+
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.authentication import TokenAuthentication
+from rest_framework.authentication import TokenAuthentication, SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-from .models import Flashcard, Legenda
-
-# Detector construído uma vez no carregamento do módulo (evita overhead por requisição)
-_detector = LanguageDetectorBuilder.from_all_languages().build()
-
-_LANG_MAP = {
-    Language.ENGLISH:    'en',
-    Language.PORTUGUESE: 'pt',
-}
-
-_LANG_NAMES = {
-    'en': 'inglês',
-    'pt': 'português',
-}
-
-MYMEMORY_URL = 'https://api.mymemory.translated.net/get'
+from .models import CapturedSentence, Flashcard
 
 
-def api_status(request):
-    return JsonResponse({
-        'status': 'ok',
-        'endpoints': {
-            'auth':       '/extensao/auth/token/',
-            'traducao':   '/extensao/traducao/',
-            'flashcards': '/extensao/flashcards/',
-            'legendas':   '/extensao/legendas/',
-        }
+# ── Sentence processing ──────────────────────────────────────────────────────
+
+_SENTENCE_END = re.compile(r'(?<=[.!?])\s+')
+_MIN_WORDS = 3
+
+
+def _split_into_sentences(text: str) -> list[str]:
+    """Split text on sentence boundaries; discard fragments shorter than _MIN_WORDS."""
+    parts = _SENTENCE_END.split(text.strip())
+    return [p.strip() for p in parts if len(p.strip().split()) >= _MIN_WORDS]
+
+
+def _normalize(text: str) -> str:
+    return re.sub(r'\s+', ' ', text).strip().lower()
+
+
+# ── Web views (Django session auth) ─────────────────────────────────────────
+
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('flashcards-page')
+
+    error = None
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '')
+        user = authenticate(request, username=username, password=password)
+        if user:
+            login(request, user)
+            return redirect('flashcards-page')
+        error = 'Usuário ou senha incorretos.'
+
+    return render(request, 'extensao/login.html', {'error': error})
+
+
+def logout_view(request):
+    logout(request)
+    return redirect('login-page')
+
+
+@login_required(login_url='/extensao/login/')
+def flashcards_page(request):
+    sentences = CapturedSentence.objects.filter(
+        user=request.user, reviewed=False
+    ).order_by('-captured_at')[:100]
+    flashcards = Flashcard.objects.filter(user=request.user).order_by('-created_at')[:50]
+    return render(request, 'extensao/flashcards.html', {
+        'sentences': sentences,
+        'flashcards': flashcards,
     })
 
 
-def _detect_lang(text: str) -> str | None:
-    """Retorna 'en', 'pt' ou None se não for nenhum dos dois ou indeterminado."""
-    detected = _detector.detect_language_of(text)
-    return _LANG_MAP.get(detected)
+# ── API views (Chrome extension — token auth) ────────────────────────────────
 
-
-def _translate(text: str, source: str, target: str) -> str | None:
-    """Chama MyMemory e retorna o texto traduzido, ou None em caso de erro."""
-    params = {'q': text, 'langpair': f'{source}|{target}'}
-    email = getattr(settings, 'MYMEMORY_EMAIL', '')
-    if email:
-        params['de'] = email
-    try:
-        resp = http_client.get(MYMEMORY_URL, params=params, timeout=10)
-        resp.raise_for_status()
-        data = resp.json()
-        if data.get('responseStatus') == 200:
-            return data['responseData']['translatedText']
-    except Exception:
-        pass
-    return None
-
-
-class TraducaoView(APIView):
+class CaptionReceiveView(APIView):
+    """Receives EN+PT caption pairs from the Chrome extension, splits into sentences."""
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        text = request.data.get('text', '').strip()
-        if not text:
-            return Response({'error': 'text é obrigatório'}, status=status.HTTP_400_BAD_REQUEST)
+        en_raw = request.data.get('en', '').strip()
+        pt_raw = request.data.get('pt', '').strip()
+        video_id = request.data.get('video_id', '').strip()[:50]
 
-        source = _detect_lang(text)
-        if source is None:
-            return Response(
-                {
-                    'error': 'unsupported_language',
-                    'message': 'Por favor, digite a frase em inglês ou português.',
-                },
-                status=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            )
+        if not en_raw:
+            return Response({'error': 'en é obrigatório'}, status=status.HTTP_400_BAD_REQUEST)
 
-        target = 'pt' if source == 'en' else 'en'
-        translated = _translate(text, source, target)
-        if translated is None:
-            return Response(
-                {'error': 'Falha ao conectar ao serviço de tradução. Tente novamente.'},
-                status=status.HTTP_502_BAD_GATEWAY,
-            )
+        en_sentences = _split_into_sentences(en_raw) or [en_raw]
+        pt_sentences = _split_into_sentences(pt_raw) if pt_raw else []
 
-        return Response({
-            'original':    text,
-            'translated':  translated,
-            'source_lang': source,
-            'target_lang': target,
-        })
+        created = 0
+        for i, en_sent in enumerate(en_sentences):
+            pt_sent = pt_sentences[i] if i < len(pt_sentences) else ''
+            # Deduplicate: skip if this exact EN text already exists for this user+video
+            exists = CapturedSentence.objects.filter(
+                user=request.user,
+                video_id=video_id,
+                en=en_sent,
+            ).exists()
+            if not exists:
+                CapturedSentence.objects.create(
+                    user=request.user,
+                    en=en_sent,
+                    pt=pt_sent,
+                    video_id=video_id,
+                )
+                created += 1
+
+        return Response({'created': created}, status=status.HTTP_201_CREATED)
+
+
+class SentenceView(APIView):
+    authentication_classes = [TokenAuthentication, SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        qs = CapturedSentence.objects.filter(user=request.user, reviewed=False)
+        video_id = request.GET.get('video_id')
+        if video_id:
+            qs = qs.filter(video_id=video_id)
+        return Response(list(qs.values('id', 'en', 'pt', 'video_id', 'captured_at')))
+
+    def patch(self, request, pk):
+        try:
+            sentence = CapturedSentence.objects.get(pk=pk, user=request.user)
+        except CapturedSentence.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        if 'reviewed' in request.data:
+            sentence.reviewed = bool(request.data['reviewed'])
+        if 'saved_as_flashcard' in request.data:
+            sentence.saved_as_flashcard = bool(request.data['saved_as_flashcard'])
+        sentence.save()
+        return Response({'id': sentence.id, 'reviewed': sentence.reviewed})
 
 
 class FlashcardView(APIView):
-    authentication_classes = [TokenAuthentication]
+    authentication_classes = [TokenAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         deck = request.GET.get('deck')
-        qs = Flashcard.objects.all()
+        qs = Flashcard.objects.filter(user=request.user)
         if deck:
             qs = qs.filter(deck=deck)
         return Response(list(qs.values('id', 'phrase', 'translation', 'deck', 'created_at')))
@@ -113,41 +145,12 @@ class FlashcardView(APIView):
             return Response({'error': 'phrase é obrigatório'}, status=status.HTTP_400_BAD_REQUEST)
 
         fc = Flashcard.objects.create(
+            user=request.user,
             phrase=phrase,
             translation=request.data.get('translation', '').strip(),
             deck=request.data.get('deck', 'geral'),
         )
         return Response(
             {'id': fc.id, 'phrase': fc.phrase, 'translation': fc.translation, 'deck': fc.deck},
-            status=status.HTTP_201_CREATED,
-        )
-
-
-class LegendaView(APIView):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        video_id = request.GET.get('video_id')
-        validada = request.GET.get('validada')
-        qs = Legenda.objects.all()
-        if video_id:
-            qs = qs.filter(video_id=video_id)
-        if validada is not None:
-            qs = qs.filter(validada=validada.lower() == 'true')
-        return Response(list(qs.values('id', 'en', 'pt', 'video_id', 'captured_at', 'validada')))
-
-    def post(self, request):
-        en = request.data.get('en', '').strip()
-        if not en:
-            return Response({'error': 'en é obrigatório'}, status=status.HTTP_400_BAD_REQUEST)
-
-        legenda = Legenda.objects.create(
-            en=en,
-            pt=request.data.get('pt', '').strip(),
-            video_id=request.data.get('video_id', '').strip(),
-        )
-        return Response(
-            {'id': legenda.id, 'en': legenda.en, 'pt': legenda.pt},
             status=status.HTTP_201_CREATED,
         )

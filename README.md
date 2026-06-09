@@ -38,7 +38,7 @@ A revisão acontece diretamente no app web, com um sistema de repetição para g
 | Camada | Tecnologia |
 |---|---|
 | Backend | Python + Django |
-| Frontend | HTML, CSS, JavaScript, Tailwind CSS |
+| Frontend | HTML, CSS, JavaScript,|
 | Extensão | JavaScript (Chrome Extension Manifest V3) |
 | Extração de legendas | A definir (biblioteca Python) |
 | IA (geração de flashcards) | A definir |

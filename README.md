@@ -60,7 +60,7 @@ youtube-flashcards/
 │   │       ├── caption_parser.py   # Processa legendas recebidas
 │   │       └── flashcard_ai.py     # Integração com IA
 │   ├── templates/
-│   │   └── ...                     # HTML com Tailwind
+│   │   └── ...                     # HTML 
 │   ├── static/
 │   │   └── ...                     # CSS e JS
 │   └── requirements.txt

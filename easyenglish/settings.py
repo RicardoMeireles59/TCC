@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -18,6 +19,9 @@ load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Adicionar back-end ao path para importar apps
+sys.path.insert(0, os.path.join(BASE_DIR, 'back-end'))
 
 
 # Quick-start development settings - unsuitable for production
@@ -46,6 +50,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
 
     'extensao',
+    'historico',
 ]
 
 REST_FRAMEWORK = {

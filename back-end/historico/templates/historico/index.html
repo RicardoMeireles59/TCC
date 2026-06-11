@@ -1,13 +1,11 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EasyEnglish – Histórico</title>
-  <link rel="stylesheet" href="{% static 'historico/style.css' %}">
-</head>
-<body>
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'historico/style.css' %}">
+{% endblock %}
+
+{% block content %}
   <!-- Botão de alternar tema -->
   <button class="theme-toggle" id="themeToggle">☀️ White</button>
 
@@ -78,11 +76,11 @@
   <div class="action-buttons">
     <button id="clearHistoryBtn" class="btn-secondary">🗑️ Limpar Histórico</button>
   </div>
+{% endblock %}
 
-  <script src="{% static 'historico/script.js' %}"></script>
-  <script>
-    // URL da API para dados do histórico
+{% block extra_scripts %}
+<script>
     const API_URL = "{% url 'historico:api_history_data' %}";
-  </script>
-</body>
-</html>
+</script>
+<script src="{% static 'historico/script.js' %}"></script>
+{% endblock %}

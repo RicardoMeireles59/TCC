@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
 
+    'core',
     'extensao',
     'historico',
 ]
@@ -83,7 +84,7 @@ ROOT_URLCONF = 'easyenglish.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'back-end' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -93,6 +94,10 @@ TEMPLATES = [
             ],
         },
     },
+]
+
+STATICFILES_DIRS = [
+    BASE_DIR / 'back-end' / 'static',
 ]
 
 WSGI_APPLICATION = 'easyenglish.wsgi.application'

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -18,6 +19,9 @@ load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Adicionar back-end ao path para importar apps
+sys.path.insert(0, os.path.join(BASE_DIR, 'back-end'))
 
 
 # Quick-start development settings - unsuitable for production
@@ -45,7 +49,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
 
+    'core',
     'extensao',
+    'historico',
 ]
 
 REST_FRAMEWORK = {
@@ -78,7 +84,7 @@ ROOT_URLCONF = 'easyenglish.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'back-end' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -88,6 +94,10 @@ TEMPLATES = [
             ],
         },
     },
+]
+
+STATICFILES_DIRS = [
+    BASE_DIR / 'back-end' / 'static',
 ]
 
 WSGI_APPLICATION = 'easyenglish.wsgi.application'

@@ -65,6 +65,12 @@ def register_view(request):
     )
 
 
+def home_view(request):
+    if request.user.is_authenticated:
+        return redirect("dashboard")
+    return redirect("login")
+
+
 def login_view(request):
 
     form = LoginForm(

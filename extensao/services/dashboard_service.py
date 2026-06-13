@@ -1,10 +1,10 @@
-from core.models import Flashcard
+from extensao.models import StudyCard
 
 
 def get_dashboard_flashcards(user, request):
-    flashcards = Flashcard.objects.select_related("video", "theme").filter(user=user)
+    flashcards = StudyCard.objects.select_related("video").filter(user=user)
 
-    # ========================== 
+    # ==========================
     # SEARCH
     # ==========================
     search = request.GET.get("search")
@@ -17,13 +17,6 @@ def get_dashboard_flashcards(user, request):
     status = request.GET.get("status")
     if status:
         flashcards = flashcards.filter(status=status)
-
-    # ==========================
-    # THEME FILTER
-    # ==========================
-    theme = request.GET.get("theme")
-    if theme:
-        flashcards = flashcards.filter(theme__id=theme)
 
     # ==========================
     # ORDERING

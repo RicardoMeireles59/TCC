@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 
 
-@login_required(login_url='/extensao/login/')
+@login_required(login_url='/login/')
 def historico_view(request):
     """Renderiza a página de histórico de estudos."""
     context = {

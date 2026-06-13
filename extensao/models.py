@@ -38,3 +38,43 @@ class Flashcard(models.Model):
 
     def __str__(self):
         return self.phrase[:60]
+
+
+# ── Web app (dashboard) — vindos do antigo back-end/core ──────────────────────
+
+class Video(models.Model):
+    title = models.CharField(max_length=255)
+    youtube_id = models.CharField(max_length=100, unique=True)
+    thumbnail = models.URLField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+
+class StudyCard(models.Model):
+    """Flashcard do app web (dashboard). Antes era core.Flashcard.
+
+    Mantido separado do Flashcard da extensão (phrase/translation/deck), que
+    serve ao fluxo de captura. Aqui o conteúdo é EN/PT vinculado a um vídeo,
+    com status e progresso de estudo.
+    """
+    STATUS_CHOICES = (
+        ("new", "Novo"),
+        ("learning", "Aprendendo"),
+        ("reviewed", "Revisado"),
+    )
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    video = models.ForeignKey(Video, on_delete=models.CASCADE)
+    english_text = models.TextField()
+    portuguese_text = models.TextField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="new")
+    progress = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return self.english_text[:50]

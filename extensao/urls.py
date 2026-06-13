@@ -9,7 +9,7 @@ from .views import (
 urlpatterns = [
     # ── Web (session auth) ────────────────────────────────────────────────────
     path('login/',      login_view,      name='login-page'),
-    path('logout/',     logout_view,     name='logout'),
+    path('logout/',     logout_view,     name='extensao-logout'),
     path('flashcards/', flashcards_page, name='flashcards-page'),
 
     # ── API (Chrome extension — token auth) ───────────────────────────────────

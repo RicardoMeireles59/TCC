@@ -2,6 +2,13 @@
 
 {% block content %}
 
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold">Meus flashcards</h1>
+    <a href="{% url 'flashcard_create' %}" class="bg-green-600 text-white rounded px-4 py-2">
+        + Novo flashcard
+    </a>
+</div>
+
 <div class="mb-6">
 
     <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -9,6 +16,7 @@
         <input
             type="text"
             name="search"
+            value="{{ request.GET.search }}"
             placeholder="Buscar..."
             class="border p-3 rounded"
         >
@@ -17,7 +25,7 @@
             name="status"
             class="border p-3 rounded"
         >
-            <option value="">Todos</option>
+            <option value="">Todos os status</option>
             <option value="new">Novo</option>
             <option value="learning">Aprendendo</option>
             <option value="reviewed">Revisado</option>

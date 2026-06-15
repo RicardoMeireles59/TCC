@@ -5,14 +5,15 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.http import require_POST
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication, SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-from .forms import RegisterForm, LoginForm
-from .models import CapturedSentence, Flashcard, StudyCard
+from .forms import RegisterForm, LoginForm, FlashcardForm
+from .models import CapturedSentence, Flashcard, Video
 from .services.dashboard_service import get_dashboard_flashcards
 
 
@@ -117,7 +118,7 @@ def dashboard_view(request):
 
 @login_required
 def update_flashcard_status(request, flashcard_id):
-    flashcard = get_object_or_404(StudyCard, id=flashcard_id, user=request.user)
+    flashcard = get_object_or_404(Flashcard, id=flashcard_id, user=request.user)
     status_val = request.POST.get("status")
     progress_val = request.POST.get("progress")
     if status_val:
@@ -126,6 +127,46 @@ def update_flashcard_status(request, flashcard_id):
         flashcard.progress = int(progress_val)
     flashcard.save()
     messages.success(request, "Progresso atualizado.")
+    return redirect("dashboard")
+
+
+@login_required
+def flashcard_create(request):
+    if request.method == "POST":
+        form = FlashcardForm(request.POST)
+        if form.is_valid():
+            fc = form.save(commit=False)
+            fc.user = request.user
+            fc.save()
+            messages.success(request, "Flashcard criado.")
+            return redirect("dashboard")
+        messages.error(request, "Verifique os dados do formulário.")
+    else:
+        form = FlashcardForm()
+    return render(request, "dashboard/flashcard_form.html", {"form": form, "modo": "Novo"})
+
+
+@login_required
+def flashcard_edit(request, flashcard_id):
+    flashcard = get_object_or_404(Flashcard, id=flashcard_id, user=request.user)
+    if request.method == "POST":
+        form = FlashcardForm(request.POST, instance=flashcard)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Flashcard atualizado.")
+            return redirect("dashboard")
+        messages.error(request, "Verifique os dados do formulário.")
+    else:
+        form = FlashcardForm(instance=flashcard)
+    return render(request, "dashboard/flashcard_form.html", {"form": form, "modo": "Editar"})
+
+
+@login_required
+@require_POST
+def flashcard_delete(request, flashcard_id):
+    flashcard = get_object_or_404(Flashcard, id=flashcard_id, user=request.user)
+    flashcard.delete()
+    messages.success(request, "Flashcard excluído.")
     return redirect("dashboard")
 
 
@@ -194,15 +235,37 @@ class SentenceView(APIView):
 
 
 class FlashcardView(APIView):
+    """CRUD de Flashcard. Coleção (GET/POST) e detalhe (GET/PATCH/DELETE por pk)."""
     authentication_classes = [TokenAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        deck = request.GET.get('deck')
+    FIELDS = ('id', 'phrase', 'translation', 'deck', 'status', 'progress', 'video', 'created_at')
+
+    @staticmethod
+    def _serialize(fc):
+        return {
+            'id': fc.id, 'phrase': fc.phrase, 'translation': fc.translation,
+            'deck': fc.deck, 'status': fc.status, 'progress': fc.progress,
+            'video': fc.video_id,
+        }
+
+    def _get_obj(self, request, pk):
+        try:
+            return Flashcard.objects.get(pk=pk, user=request.user)
+        except Flashcard.DoesNotExist:
+            return None
+
+    def get(self, request, pk=None):
+        if pk is not None:
+            fc = self._get_obj(request, pk)
+            if fc is None:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(self._serialize(fc))
         qs = Flashcard.objects.filter(user=request.user)
+        deck = request.GET.get('deck')
         if deck:
             qs = qs.filter(deck=deck)
-        return Response(list(qs.values('id', 'phrase', 'translation', 'deck', 'created_at')))
+        return Response(list(qs.values(*self.FIELDS)))
 
     def post(self, request):
         phrase = request.data.get('phrase', '').strip()
@@ -215,7 +278,30 @@ class FlashcardView(APIView):
             translation=request.data.get('translation', '').strip(),
             deck=request.data.get('deck', 'geral'),
         )
-        return Response(
-            {'id': fc.id, 'phrase': fc.phrase, 'translation': fc.translation, 'deck': fc.deck},
-            status=status.HTTP_201_CREATED,
-        )
+        return Response(self._serialize(fc), status=status.HTTP_201_CREATED)
+
+    def patch(self, request, pk=None):
+        if pk is None:
+            return Response({'error': 'pk obrigatório'}, status=status.HTTP_400_BAD_REQUEST)
+        fc = self._get_obj(request, pk)
+        if fc is None:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        for field in ('phrase', 'translation', 'deck', 'status'):
+            if field in request.data:
+                setattr(fc, field, request.data[field])
+        if 'progress' in request.data:
+            try:
+                fc.progress = int(request.data['progress'])
+            except (TypeError, ValueError):
+                return Response({'error': 'progress inválido'}, status=status.HTTP_400_BAD_REQUEST)
+        fc.save()
+        return Response(self._serialize(fc))
+
+    def delete(self, request, pk=None):
+        if pk is None:
+            return Response({'error': 'pk obrigatório'}, status=status.HTTP_400_BAD_REQUEST)
+        fc = self._get_obj(request, pk)
+        if fc is None:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        fc.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

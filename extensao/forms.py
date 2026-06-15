@@ -2,8 +2,36 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 
+from .models import Flashcard
+
 
 User = get_user_model()
+
+
+# ==================================================
+# FLASHCARD FORM (CRUD)
+# ==================================================
+
+_INPUT = "w-full border rounded p-2"
+
+
+class FlashcardForm(forms.ModelForm):
+    class Meta:
+        model = Flashcard
+        fields = ["phrase", "translation", "deck", "status", "progress", "video"]
+        widgets = {
+            "phrase": forms.Textarea(attrs={"class": _INPUT, "rows": 2, "placeholder": "Frase em inglês"}),
+            "translation": forms.Textarea(attrs={"class": _INPUT, "rows": 2, "placeholder": "Tradução em português"}),
+            "deck": forms.Select(attrs={"class": _INPUT}),
+            "status": forms.Select(attrs={"class": _INPUT}),
+            "progress": forms.NumberInput(attrs={"class": _INPUT, "min": 0, "max": 100}),
+            "video": forms.Select(attrs={"class": _INPUT}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["translation"].required = False
+        self.fields["video"].required = False
 
 
 # ==================================================

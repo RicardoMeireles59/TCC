@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Cadastro — EasyEnglish{% endblock %}
+
+{% block content %}
+<div class="register-container">
+    <div class="form-wrapper center-form">
+        <div class="logo-brand text-center">
+            <span class="logo-text">Easy<span class="accent">English</span></span>
+        </div>
+
+        <h4>Crie sua conta gratuita</h4>
+
+        <form method="post">
+            {% csrf_token %}
+            <label>Usuário</label>
+            {{ form.username }}
+            <label>E-mail</label>
+            {{ form.email }}
+            <label>Senha</label>
+            {{ form.password }}
+            <label>Confirmar senha</label>
+            {{ form.confirm_password }}
+            <button type="submit" class="btn-primary">Criar conta</button>
+        </form>
+
+        <p class="switch-screen">Já tem conta? <a href="{% url 'login' %}">Entrar</a></p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'base_app.html' %}
+{% block title %}Flashcards — EasyEnglish{% endblock %}
+{% block page_title %}Flashcards{% endblock %}
+
+{% block app_content %}
+<div class="page-header">
+    <h1>Meus flashcards</h1>
+    <a href="{% url 'flashcard_create' %}" class="btn-primary" style="width:auto;">+ Novo flashcard</a>
+</div>
+
+<form method="get" class="filters">
+    <input type="text" name="search" value="{{ request.GET.search }}" placeholder="Buscar...">
+    <select name="status">
+        <option value="">Todos os status</option>
+        <option value="new"      {% if request.GET.status == 'new' %}selected{% endif %}>Novo</option>
+        <option value="learning" {% if request.GET.status == 'learning' %}selected{% endif %}>Aprendendo</option>
+        <option value="reviewed" {% if request.GET.status == 'reviewed' %}selected{% endif %}>Revisado</option>
+    </select>
+    <button type="submit" class="btn-outline">Filtrar</button>
+</form>
+
+<div class="fc-grid">
+    {% for flashcard in page_obj %}
+        {% include 'components/flashcard_card.html' with flashcard=flashcard %}
+    {% empty %}
+        <div class="empty-hint">Nenhum flashcard encontrado.</div>
+    {% endfor %}
+</div>
+
+{% include 'components/pagination.html' %}
+{% endblock %}

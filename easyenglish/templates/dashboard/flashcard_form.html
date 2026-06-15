@@ -1,0 +1,40 @@
+{% extends 'base_app.html' %}
+{% block title %}{{ modo }} flashcard — EasyEnglish{% endblock %}
+{% block page_title %}{{ modo }} flashcard{% endblock %}
+
+{% block app_content %}
+<div class="form-wrapper center-form" style="margin: 0 auto;">
+
+    <form method="post">
+        {% csrf_token %}
+
+        <label>Frase (inglês)</label>
+        {{ form.phrase }}
+
+        <label>Tradução (português)</label>
+        {{ form.translation }}
+
+        <div class="input-row">
+            <div><label>Baralho</label>{{ form.deck }}</div>
+            <div><label>Status</label>{{ form.status }}</div>
+        </div>
+
+        <div class="input-row">
+            <div><label>Progresso (%)</label>{{ form.progress }}</div>
+            <div><label>Vídeo (opcional)</label>{{ form.video }}</div>
+        </div>
+
+        {% if form.errors %}
+        <div class="form-errors">
+            {% for field, errors in form.errors.items %}
+                {% for e in errors %}<div>{{ field }}: {{ e }}</div>{% endfor %}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <button type="submit" class="btn-primary">Salvar</button>
+        <p class="switch-screen"><a href="{% url 'flashcards_list' %}">Voltar</a></p>
+    </form>
+
+</div>
+{% endblock %}

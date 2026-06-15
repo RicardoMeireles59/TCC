@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}EasyEnglish{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/design.css' %}">
+    <script>
+        // Aplica o tema salvo cedo, evitando "flash".
+        (function () {
+            if ((localStorage.getItem('theme') || 'dark') === 'white') {
+                document.documentElement.setAttribute('data-theme', 'white');
+            }
+        })();
+    </script>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="msg {% if 'success' in message.tags %}success{% elif 'error' in message.tags %}error{% endif %}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+
+    {% block theme %}
+        <button class="theme-toggle-btn" id="themeToggle" title="Alternar tema">🌓</button>
+        <script src="{% static 'js/theme.js' %}"></script>
+    {% endblock %}
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

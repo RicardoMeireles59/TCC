@@ -1,0 +1,30 @@
+<div class="fc-card">
+
+    {% if flashcard.video %}
+        <img src="{{ flashcard.video.thumbnail }}" class="fc-thumb" alt="">
+    {% endif %}
+
+    <span class="fc-deck">{{ flashcard.get_deck_display }}</span>
+    <p class="fc-phrase">{{ flashcard.phrase }}</p>
+    <p class="fc-translation">{{ flashcard.translation }}</p>
+
+    <form method="post" action="{% url 'update_flashcard_status' flashcard.id %}">
+        {% csrf_token %}
+        <select name="status">
+            <option value="new"      {% if flashcard.status == 'new' %}selected{% endif %}>Novo</option>
+            <option value="learning" {% if flashcard.status == 'learning' %}selected{% endif %}>Aprendendo</option>
+            <option value="reviewed" {% if flashcard.status == 'reviewed' %}selected{% endif %}>Revisado</option>
+        </select>
+        <input type="number" name="progress" value="{{ flashcard.progress }}" min="0" max="100">
+        <button class="btn-outline" type="submit" style="width:100%;">Atualizar progresso</button>
+    </form>
+
+    <div class="fc-actions">
+        <a href="{% url 'flashcard_edit' flashcard.id %}" class="btn-outline" style="text-align:center;">Editar</a>
+        <form method="post" action="{% url 'flashcard_delete' flashcard.id %}" onsubmit="return confirm('Excluir este flashcard?');">
+            {% csrf_token %}
+            <button class="btn-outline btn-danger" type="submit" style="width:100%;">Excluir</button>
+        </form>
+    </div>
+
+</div>

@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{# Histórico tem o seu próprio botão/lógica de tema — evita o botão padrão do base. #}
+{% block theme %}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'historico/style.css' %}">
+{% endblock %}
+
+{% block content %}
+  <!-- Botão de alternar tema -->
+  <button class="theme-toggle" id="themeToggle">☀️ White</button>
+
+  <!-- Header -->
+  <div class="header">
+    <h1 class="page-title">📚 Histórico de Estudos</h1>
+    <p class="page-subtitle">Acompanhe seu progresso ao longo do tempo</p>
+  </div>
+
+  <!-- Resumo Geral -->
+  <div class="stats-container">
+    <div class="stat-card">
+      <div class="stat-value" id="total-sessions">0</div>
+      <div class="stat-label">Sessões</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="total-cards-studied">0</div>
+      <div class="stat-label">Cards Estudados</div>
+    </div>
+    <div class="stat-card success">
+      <div class="stat-value" id="total-correct">0</div>
+      <div class="stat-label">Total Acertos</div>
+    </div>
+    <div class="stat-card error">
+      <div class="stat-value" id="total-incorrect">0</div>
+      <div class="stat-label">Total Erros</div>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters-section">
+    <input 
+      type="text" 
+      id="searchInput" 
+      class="search-input" 
+      placeholder="🔍 Buscar por data ou descrição..."
+    >
+    <select id="filterSelect" class="filter-select">
+      <option value="">Todos</option>
+      <option value="high">Taxa Acerto > 70%</option>
+      <option value="low">Taxa Acerto < 70%</option>
+    </select>
+  </div>
+
+  <!-- Tabela de Histórico -->
+  <div class="table-container">
+    <table class="history-table">
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Cards</th>
+          <th class="success-col">✓ Acertos</th>
+          <th class="error-col">✗ Erros</th>
+          <th>Taxa de Acerto</th>
+          <th>Duração</th>
+        </tr>
+      </thead>
+      <tbody id="historyTableBody">
+        <!-- Dados carregados via JavaScript -->
+      </tbody>
+    </table>
+    <div id="emptyState" class="empty-state">
+      <p>📭 Nenhum histórico encontrado</p>
+    </div>
+  </div>
+
+  <!-- Botão para limpar histórico -->
+  <div class="action-buttons">
+    <button id="clearHistoryBtn" class="btn-secondary">🗑️ Limpar Histórico</button>
+  </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    const API_URL = "{% url 'historico_api' %}";
+</script>
+<script src="{% static 'historico/script.js' %}"></script>
+{% endblock %}

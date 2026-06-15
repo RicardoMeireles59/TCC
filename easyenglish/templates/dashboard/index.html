@@ -1,0 +1,38 @@
+{% extends 'base_app.html' %}
+{% block title %}Início — EasyEnglish{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block app_content %}
+<div class="welcome-section">
+    <h2>Olá, {{ request.user.username }}! ✨</h2>
+    <div class="stats-grid">
+        <div class="stat-card"><h2>{{ stats.revisar }}</h2><p>Cards para revisar</p></div>
+        <div class="stat-card"><h2>{{ stats.aprendidos }}</h2><p>Aprendidos</p></div>
+        <div class="stat-card"><h2>{{ stats.videos }}</h2><p>Vídeos capturados</p></div>
+    </div>
+</div>
+
+<div class="recent-videos">
+    <div class="section-header">
+        <h3>VÍDEOS RECENTES</h3>
+        <a href="{% url 'flashcards_list' %}">Ver flashcards</a>
+    </div>
+
+    {% for v in recent_videos %}
+    <div class="video-item">
+        <div class="video-info">
+            <span class="play-icon">▶</span>
+            <div>
+                <h4>{{ v.video_id }}</h4>
+                <p>{{ v.n }} frase{{ v.n|pluralize }} capturada{{ v.n|pluralize }}</p>
+            </div>
+        </div>
+        <a class="btn-outline" href="https://www.youtube.com/watch?v={{ v.video_id }}" target="_blank" rel="noopener">Abrir no YouTube</a>
+    </div>
+    {% empty %}
+    <div class="empty-hint">Nenhum vídeo capturado ainda. Use a extensão no YouTube para capturar legendas.</div>
+    {% endfor %}
+</div>
+
+<div class="extension-banner">⬇ Instale a extensão para capturar legendas do YouTube</div>
+{% endblock %}

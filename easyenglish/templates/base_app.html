@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard-layout">
+
+    <aside class="sidebar">
+        <div class="logo-brand sidebar-logo">
+            <span class="logo-text">Easy<span class="accent">English</span></span>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="{% url 'dashboard' %}"        class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">🏠 Início</a></li>
+                <li><a href="{% url 'flashcards_list' %}"  class="{% if request.resolver_match.url_name == 'flashcards_list' %}active{% endif %}">🗂️ Flashcards</a></li>
+                <li><a href="{% url 'study' %}"            class="{% if request.resolver_match.url_name == 'study' %}active{% endif %}">🎴 Estudar</a></li>
+                <li><a href="{% url 'historico' %}"  class="{% if request.resolver_match.url_name == 'historico' %}active{% endif %}">🕒 Histórico</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="dashboard-content">
+        <header class="top-nav">
+            <div class="nav-links"><strong>{% block page_title %}{% endblock %}</strong></div>
+            <div class="right">
+                <span class="nav-user">{{ request.user.username }}</span>
+                <a href="{% url 'logout' %}" class="btn-outline">Sair</a>
+                <span class="profile-icon">👤</span>
+            </div>
+        </header>
+
+        {% block app_content %}{% endblock %}
+    </main>
+
+</div>
+{% endblock %}

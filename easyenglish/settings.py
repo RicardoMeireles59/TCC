@@ -45,8 +45,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
 
+    'easyenglish',
     'extensao',
-    'historico',
 ]
 
 REST_FRAMEWORK = {

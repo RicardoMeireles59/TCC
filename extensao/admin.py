@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import CapturedSentence, Flashcard, Video, StudyCard
+from .models import CapturedSentence, Flashcard, Video
 
 
 @admin.register(CapturedSentence)
@@ -10,14 +10,6 @@ class CapturedSentenceAdmin(admin.ModelAdmin):
     readonly_fields = ('captured_at',)
 
 
-@admin.register(Flashcard)
-class FlashcardAdmin(admin.ModelAdmin):
-    list_display = ('phrase', 'translation', 'deck', 'user', 'created_at')
-    list_filter = ('deck', 'user')
-    search_fields = ('phrase', 'translation')
-    readonly_fields = ('created_at',)
-
-
 @admin.register(Video)
 class VideoAdmin(admin.ModelAdmin):
     list_display = ('title', 'youtube_id', 'created_at')
@@ -25,9 +17,9 @@ class VideoAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at',)
 
 
-@admin.register(StudyCard)
-class StudyCardAdmin(admin.ModelAdmin):
-    list_display = ('english_text', 'portuguese_text', 'video', 'status', 'progress', 'user', 'created_at')
-    list_filter = ('status', 'user')
-    search_fields = ('english_text', 'portuguese_text')
+@admin.register(Flashcard)
+class FlashcardAdmin(admin.ModelAdmin):
+    list_display = ('phrase', 'translation', 'deck', 'status', 'progress', 'video', 'user', 'created_at')
+    list_filter = ('deck', 'status', 'user')
+    search_fields = ('phrase', 'translation')
     readonly_fields = ('created_at',)

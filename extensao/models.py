@@ -18,30 +18,6 @@ class CapturedSentence(models.Model):
         return self.en[:60]
 
 
-class Flashcard(models.Model):
-    DECK_CHOICES = [
-        ('geral',   'Geral'),
-        ('frases',  'Frases do dia a dia'),
-        ('phrasal', 'Phrasal Verbs'),
-        ('vocab',   'Vocabulário'),
-    ]
-
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='flashcards',
-                             null=True, blank=True)
-    phrase = models.TextField()
-    translation = models.TextField(blank=True)
-    deck = models.CharField(max_length=30, choices=DECK_CHOICES, default='geral')
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ['-created_at']
-
-    def __str__(self):
-        return self.phrase[:60]
-
-
-# ── Web app (dashboard) — vindos do antigo back-end/core ──────────────────────
-
 class Video(models.Model):
     title = models.CharField(max_length=255)
     youtube_id = models.CharField(max_length=100, unique=True)
@@ -52,29 +28,40 @@ class Video(models.Model):
         return self.title
 
 
-class StudyCard(models.Model):
-    """Flashcard do app web (dashboard). Antes era core.Flashcard.
+class Flashcard(models.Model):
+    """Modelo único de flashcard.
 
-    Mantido separado do Flashcard da extensão (phrase/translation/deck), que
-    serve ao fluxo de captura. Aqui o conteúdo é EN/PT vinculado a um vídeo,
-    com status e progresso de estudo.
+    Unifica o antigo StudyCard: além de frase/tradução/baralho (criados a partir
+    das legendas capturadas), guarda vínculo opcional com o vídeo de origem e o
+    progresso de estudo (status/progress). O baralho (deck) identifica a origem.
     """
+    DECK_CHOICES = [
+        ('geral',   'Geral'),
+        ('frases',  'Frases do dia a dia'),
+        ('phrasal', 'Phrasal Verbs'),
+        ('vocab',   'Vocabulário'),
+        ('video',   'Do vídeo'),
+    ]
+
     STATUS_CHOICES = (
-        ("new", "Novo"),
-        ("learning", "Aprendendo"),
-        ("reviewed", "Revisado"),
+        ('new',      'Novo'),
+        ('learning', 'Aprendendo'),
+        ('reviewed', 'Revisado'),
     )
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    video = models.ForeignKey(Video, on_delete=models.CASCADE)
-    english_text = models.TextField()
-    portuguese_text = models.TextField()
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="new")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='flashcards',
+                             null=True, blank=True)
+    video = models.ForeignKey(Video, on_delete=models.SET_NULL, related_name='flashcards',
+                              null=True, blank=True)
+    phrase = models.TextField()                       # EN
+    translation = models.TextField(blank=True)        # PT
+    deck = models.CharField(max_length=30, choices=DECK_CHOICES, default='geral')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='new')
     progress = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ["-created_at"]
+        ordering = ['-created_at']
 
     def __str__(self):
-        return self.english_text[:50]
+        return self.phrase[:60]

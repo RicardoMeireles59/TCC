@@ -17,5 +17,6 @@ urlpatterns = [
     path('api/captions/',          CaptionReceiveView.as_view(), name='api-captions'),
     path('api/sentences/',         SentenceView.as_view(),       name='api-sentences'),
     path('api/sentences/<int:pk>/', SentenceView.as_view(),      name='api-sentence-detail'),
-    path('api/flashcards/',        FlashcardView.as_view(),      name='api-flashcards'),
+    path('api/flashcards/',         FlashcardView.as_view(),     name='api-flashcards'),
+    path('api/flashcards/<int:pk>/', FlashcardView.as_view(),    name='api-flashcard-detail'),
 ]

@@ -4,7 +4,11 @@
         <img src="{{ flashcard.video.thumbnail }}" class="fc-thumb" alt="">
     {% endif %}
 
-    <span class="fc-deck">{{ flashcard.get_deck_display }}</span>
+    {% if flashcard.source_video_id %}
+        <span class="fc-deck">Vídeo: {{ flashcard.source_video_id }}</span>
+    {% else %}
+        <span class="fc-deck">{{ flashcard.get_deck_display }}</span>
+    {% endif %}
     <p class="fc-phrase">{{ flashcard.phrase }}</p>
     <p class="fc-translation">{{ flashcard.translation }}</p>
 

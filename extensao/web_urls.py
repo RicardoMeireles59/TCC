@@ -1,8 +1,4 @@
-"""Rotas do app web (auth + dashboard + CRUD de flashcards), montadas na raiz.
-
-Os nomes (home/login/register/logout/dashboard/...) são preservados porque os
-templates os referenciam.
-"""
+"""Rotas do app web (auth + dashboard + flashcards), montadas na raiz."""
 from django.urls import path
 
 from .views import (
@@ -11,6 +7,8 @@ from .views import (
     web_login_view,
     web_logout_view,
     dashboard_view,
+    flashcards_list_view,
+    study_view,
     update_flashcard_status,
     flashcard_create,
     flashcard_edit,
@@ -24,7 +22,9 @@ urlpatterns = [
     path("logout/", web_logout_view, name="logout"),
     path("dashboard/", dashboard_view, name="dashboard"),
 
-    # CRUD de flashcards (web)
+    # Flashcards (lista + estudo + CRUD)
+    path("flashcards/", flashcards_list_view, name="flashcards_list"),
+    path("estudar/", study_view, name="study"),
     path("flashcard/novo/", flashcard_create, name="flashcard_create"),
     path("flashcard/<int:flashcard_id>/editar/", flashcard_edit, name="flashcard_edit"),
     path("flashcard/<int:flashcard_id>/excluir/", flashcard_delete, name="flashcard_delete"),

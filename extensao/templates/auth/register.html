@@ -1,62 +1,29 @@
 {% extends 'base.html' %}
+{% block title %}Cadastro — EasyEnglish{% endblock %}
 
 {% block content %}
+<div class="register-container">
+    <div class="form-wrapper center-form">
+        <div class="logo-brand text-center">
+            <span class="logo-text">Easy<span class="accent">English</span></span>
+        </div>
 
-<div class="min-h-screen flex items-center justify-center">
+        <h4>Crie sua conta gratuita</h4>
 
-    <div class="bg-white p-8 rounded shadow w-full max-w-md">
-
-        <h1 class="text-3xl font-bold mb-6">
-            Criar Conta
-        </h1>
-
-        <form method="POST">
-
+        <form method="post">
             {% csrf_token %}
-
-            <div class="mb-4">
-                <label class="block mb-2">
-                    Usuário
-                </label>
-
-                {{ form.username }}
-            </div>
-
-            <div class="mb-4">
-                <label class="block mb-2">
-                    Email
-                </label>
-
-                {{ form.email }}
-            </div>
-
-            <div class="mb-4">
-                <label class="block mb-2">
-                    Senha
-                </label>
-
-                {{ form.password }}
-            </div>
-
-            <div class="mb-6">
-                <label class="block mb-2">
-                    Confirmar senha
-                </label>
-
-                {{ form.confirm_password }}
-            </div>
-
-            <button
-                type="submit"
-                class="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded"
-            >
-                Criar Conta
-            </button>
-
+            <label>Usuário</label>
+            {{ form.username }}
+            <label>E-mail</label>
+            {{ form.email }}
+            <label>Senha</label>
+            {{ form.password }}
+            <label>Confirmar senha</label>
+            {{ form.confirm_password }}
+            <button type="submit" class="btn-primary">Criar conta</button>
         </form>
 
+        <p class="switch-screen">Já tem conta? <a href="{% url 'login' %}">Entrar</a></p>
     </div>
-
 </div>
-
 {% endblock %}

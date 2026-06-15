@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{# Histórico tem o seu próprio botão/lógica de tema — evita o botão padrão do base. #}
+{% block theme %}{% endblock %}
+
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'historico/style.css' %}">
 {% endblock %}

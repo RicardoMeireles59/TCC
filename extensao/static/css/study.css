@@ -1,0 +1,48 @@
+/* Tela de estudo (flip-card). Escopado em .study-page para conviver com o layout. */
+.study-page { display: flex; flex-direction: column; align-items: center; }
+
+.study-page .barra-status { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; justify-content: center; }
+.study-page .status-card { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 14px 28px; background: var(--bg-surface); border-radius: var(--radius-lg); border: 1px solid var(--border-light); min-width: 100px; }
+.study-page .status-card h2 { font-size: var(--font-size-3xl); font-weight: var(--font-weight-bold); line-height: 1; }
+.study-page .status-card p { font-size: var(--font-size-sm); color: var(--text-muted); font-weight: var(--font-weight-medium); }
+.study-page .acertos h2 { color: var(--green); }
+.study-page .revisao h2 { color: var(--amber); }
+.study-page .erros h2 { color: var(--red); }
+
+.study-page .contador { font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); color: var(--text-muted); margin-bottom: 18px; letter-spacing: 0.3px; }
+.study-page .contador span { color: var(--text-primary); font-weight: var(--font-weight-semibold); }
+
+.study-page .review-container { display: flex; justify-content: center; margin-bottom: 20px; width: 100%; }
+.study-page .card-slot { display: none; flex-direction: column; align-items: center; gap: 16px; }
+.study-page .card-slot.is-active { display: flex; }
+
+.study-page .flashcard { width: 420px; height: 240px; max-width: 100%; perspective: 1200px; cursor: pointer; }
+.study-page .card-inner { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+.study-page .flashcard.flip .card-inner { transform: rotateY(180deg); }
+
+.study-page .front, .study-page .back {
+    position: absolute; width: 100%; height: 100%; border-radius: var(--radius-xl);
+    display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px;
+    padding: 24px; backface-visibility: hidden; border: 1px solid var(--border-light); background: var(--bg-surface);
+}
+.study-page .back { border-color: var(--green-border); transform: rotateY(180deg); }
+.study-page .face-label { font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-muted); }
+.study-page .back .face-label { color: var(--green); }
+.study-page .front p, .study-page .back p { font-size: var(--font-size-xl); font-weight: var(--font-weight-semibold); color: var(--text-primary); text-align: center; line-height: 1.4; }
+.study-page .flip-hint { font-size: var(--font-size-xs); color: var(--text-muted); margin-top: 4px; }
+
+.study-page .controles { display: flex; justify-content: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.study-page .controles button { background: var(--bg-surface); color: var(--text-secondary); border: 1px solid var(--border-medium); border-radius: var(--radius-md); padding: 9px 20px; font-weight: var(--font-weight-semibold); cursor: pointer; }
+.study-page .controles button:hover { background: var(--bg-surface-hover); color: var(--text-primary); }
+.study-page .btn-virar { background: var(--action-primary) !important; color: var(--text-inverted) !important; border-color: transparent !important; }
+
+.study-page .status-resposta { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.study-page .status-resposta form { margin: 0; }
+.study-page .status-resposta button { padding: 9px 20px; border-radius: var(--radius-md); font-weight: var(--font-weight-semibold); cursor: pointer; border: 1px solid transparent; }
+.study-page .acertou-btn { background: var(--green-dim); color: var(--green); border-color: var(--green-border); }
+.study-page .revisar-btn { background: var(--amber-dim); color: var(--amber); border-color: var(--amber-border); }
+.study-page .errou-btn { background: var(--red-dim); color: var(--red); border-color: var(--red-border); }
+
+.study-page .empty-hint { text-align: center; }
+
+@media (max-width: 480px) { .study-page .flashcard { width: 100%; height: 210px; } }

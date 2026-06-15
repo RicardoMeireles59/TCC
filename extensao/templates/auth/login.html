@@ -1,33 +1,37 @@
 {% extends 'base.html' %}
+{% block title %}Entrar — EasyEnglish{% endblock %}
 
 {% block content %}
+<div class="login-container">
 
-<div class="max-w-md mx-auto bg-white p-6 rounded shadow">
-
-    <h1 class="text-2xl font-bold mb-6">
-        Login
-    </h1>
-
-    <form method="POST">
-
-        {% csrf_token %}
-
-        <div class="mb-4">
-            <label>Usuário</label>
-            {{ form.username }}
+    <div class="login-left">
+        <div class="main-logo-display">
+            <h1>Easy<span style="color:var(--green)">English</span></h1>
         </div>
+        <h2>Aprenda com o que você já assiste</h2>
+        <p>Flashcards gerados automaticamente das legendas do YouTube.</p>
+    </div>
 
-        <div class="mb-4">
-            <label>Senha</label>
-            {{ form.password }}
+    <div class="login-right">
+        <div class="form-wrapper">
+            <div class="logo-brand text-center">
+                <span class="logo-text">Easy<span class="accent">English</span></span>
+            </div>
+
+            <h4>Entrar na sua conta</h4>
+
+            <form method="post">
+                {% csrf_token %}
+                <label>Usuário</label>
+                {{ form.username }}
+                <label>Senha</label>
+                {{ form.password }}
+                <button type="submit" class="btn-primary">Entrar</button>
+            </form>
+
+            <p class="switch-screen">Não tem conta? <a href="{% url 'register' %}">Cadastre-se</a></p>
         </div>
-
-        <button class="w-full bg-green-600 text-white p-3 rounded">
-            Entrar
-        </button>
-
-    </form>
+    </div>
 
 </div>
-
 {% endblock %}

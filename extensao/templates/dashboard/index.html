@@ -1,75 +1,38 @@
-{% extends 'base.html' %}
+{% extends 'base_app.html' %}
+{% block title %}Início — EasyEnglish{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
 
-{% block content %}
-
-<div class="flex items-center justify-between mb-6">
-    <h1 class="text-2xl font-bold">Meus flashcards</h1>
-    <a href="{% url 'flashcard_create' %}" class="bg-green-600 text-white rounded px-4 py-2">
-        + Novo flashcard
-    </a>
+{% block app_content %}
+<div class="welcome-section">
+    <h2>Olá, {{ request.user.username }}! ✨</h2>
+    <div class="stats-grid">
+        <div class="stat-card"><h2>{{ stats.revisar }}</h2><p>Cards para revisar</p></div>
+        <div class="stat-card"><h2>{{ stats.aprendidos }}</h2><p>Aprendidos</p></div>
+        <div class="stat-card"><h2>{{ stats.videos }}</h2><p>Vídeos capturados</p></div>
+    </div>
 </div>
 
-<div class="mb-6">
+<div class="recent-videos">
+    <div class="section-header">
+        <h3>VÍDEOS RECENTES</h3>
+        <a href="{% url 'flashcards_list' %}">Ver flashcards</a>
+    </div>
 
-    <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-
-        <input
-            type="text"
-            name="search"
-            value="{{ request.GET.search }}"
-            placeholder="Buscar..."
-            class="border p-3 rounded"
-        >
-
-        <select
-            name="status"
-            class="border p-3 rounded"
-        >
-            <option value="">Todos os status</option>
-            <option value="new">Novo</option>
-            <option value="learning">Aprendendo</option>
-            <option value="reviewed">Revisado</option>
-        </select>
-
-        <select
-            name="ordering"
-            class="border p-3 rounded"
-        >
-            <option value="-created_at">
-                Mais recentes
-            </option>
-
-            <option value="created_at">
-                Mais antigos
-            </option>
-
-            <option value="progress">
-                Progresso
-            </option>
-        </select>
-
-        <button class="bg-blue-600 text-white rounded p-3">
-            Filtrar
-        </button>
-
-    </form>
-
-</div>
-
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-    {% for flashcard in page_obj %}
-
-        {% include 'components/flashcard_card.html' with flashcard=flashcard %}
-
+    {% for v in recent_videos %}
+    <div class="video-item">
+        <div class="video-info">
+            <span class="play-icon">▶</span>
+            <div>
+                <h4>{{ v.video_id }}</h4>
+                <p>{{ v.n }} frase{{ v.n|pluralize }} capturada{{ v.n|pluralize }}</p>
+            </div>
+        </div>
+        <a class="btn-outline" href="https://www.youtube.com/watch?v={{ v.video_id }}" target="_blank" rel="noopener">Abrir no YouTube</a>
+    </div>
     {% empty %}
-
-        <p>Nenhum conteúdo encontrado.</p>
-
+    <div class="empty-hint">Nenhum vídeo capturado ainda. Use a extensão no YouTube para capturar legendas.</div>
     {% endfor %}
-
 </div>
 
-{% include 'components/pagination.html' %}
-
+<div class="extension-banner">⬇ Instale a extensão para capturar legendas do YouTube</div>
 {% endblock %}

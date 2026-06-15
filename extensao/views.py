@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.db.models import Count, Max
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from rest_framework.views import APIView
@@ -109,11 +110,43 @@ def web_logout_view(request):
 
 @login_required
 def dashboard_view(request):
+    """Visão geral (Início): contadores + vídeos recentes."""
+    user = request.user
+    cards = Flashcard.objects.filter(user=user)
+    stats = {
+        "revisar": cards.filter(status="new").count(),
+        "aprendidos": cards.filter(status="reviewed").count(),
+        "videos": (CapturedSentence.objects.filter(user=user)
+                   .exclude(video_id="").values("video_id").distinct().count()),
+    }
+    recent_videos = list(
+        CapturedSentence.objects.filter(user=user).exclude(video_id="")
+        .values("video_id")
+        .annotate(n=Count("id"), last=Max("captured_at"))
+        .order_by("-last")[:5]
+    )
+    return render(request, "dashboard/index.html", {"stats": stats, "recent_videos": recent_videos})
+
+
+@login_required
+def flashcards_list_view(request):
+    """Lista + CRUD dos flashcards do usuário."""
     flashcards = get_dashboard_flashcards(request.user, request)
-    paginator = Paginator(flashcards, 10)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-    return render(request, "dashboard/index.html", {"page_obj": page_obj})
+    paginator = Paginator(flashcards, 12)
+    page_obj = paginator.get_page(request.GET.get("page"))
+    return render(request, "flashcards/list.html", {"page_obj": page_obj})
+
+
+@login_required
+def study_view(request):
+    """Tela de estudo (flip-cards) com os flashcards do usuário."""
+    cards = Flashcard.objects.filter(user=request.user)
+    counts = {
+        "acertos": cards.filter(status="reviewed").count(),
+        "revisoes": cards.filter(status="learning").count(),
+        "erros": cards.filter(status="new").count(),
+    }
+    return render(request, "flashcards/estudar.html", {"cards": cards, "counts": counts})
 
 
 @login_required
@@ -126,8 +159,10 @@ def update_flashcard_status(request, flashcard_id):
     if progress_val:
         flashcard.progress = int(progress_val)
     flashcard.save()
+    if request.POST.get("origem") == "study":
+        return redirect("study")
     messages.success(request, "Progresso atualizado.")
-    return redirect("dashboard")
+    return redirect("flashcards_list")
 
 
 @login_required
@@ -139,7 +174,7 @@ def flashcard_create(request):
             fc.user = request.user
             fc.save()
             messages.success(request, "Flashcard criado.")
-            return redirect("dashboard")
+            return redirect("flashcards_list")
         messages.error(request, "Verifique os dados do formulário.")
     else:
         form = FlashcardForm()
@@ -154,7 +189,7 @@ def flashcard_edit(request, flashcard_id):
         if form.is_valid():
             form.save()
             messages.success(request, "Flashcard atualizado.")
-            return redirect("dashboard")
+            return redirect("flashcards_list")
         messages.error(request, "Verifique os dados do formulário.")
     else:
         form = FlashcardForm(instance=flashcard)
@@ -167,7 +202,7 @@ def flashcard_delete(request, flashcard_id):
     flashcard = get_object_or_404(Flashcard, id=flashcard_id, user=request.user)
     flashcard.delete()
     messages.success(request, "Flashcard excluído.")
-    return redirect("dashboard")
+    return redirect("flashcards_list")
 
 
 # ── API views (Chrome extension — token auth) ────────────────────────────────

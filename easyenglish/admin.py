@@ -8,7 +8,7 @@ class EstudoSessaoAdmin(admin.ModelAdmin):
     list_filter = ('data', 'user')
     search_fields = ('user__username',)
     readonly_fields = ('data',)
-    
+
     fieldsets = (
         ('Usuário', {
             'fields': ('user',)

@@ -12,7 +12,7 @@
                 <li><a href="{% url 'dashboard' %}"        class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">🏠 Início</a></li>
                 <li><a href="{% url 'flashcards_list' %}"  class="{% if request.resolver_match.url_name == 'flashcards_list' %}active{% endif %}">🗂️ Flashcards</a></li>
                 <li><a href="{% url 'study' %}"            class="{% if request.resolver_match.url_name == 'study' %}active{% endif %}">🎴 Estudar</a></li>
-                <li><a href="{% url 'historico:index' %}"  class="{% if request.resolver_match.view_name == 'historico:index' %}active{% endif %}">🕒 Histórico</a></li>
+                <li><a href="{% url 'historico' %}"  class="{% if request.resolver_match.url_name == 'historico' %}active{% endif %}">🕒 Histórico</a></li>
             </ul>
         </nav>
     </aside>

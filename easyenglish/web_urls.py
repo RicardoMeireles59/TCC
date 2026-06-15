@@ -1,4 +1,4 @@
-"""Rotas do app web (auth + dashboard + flashcards), montadas na raiz."""
+"""Rotas do app web (auth + dashboard + flashcards + histórico), montadas na raiz."""
 from django.urls import path
 
 from .views import (
@@ -13,6 +13,8 @@ from .views import (
     flashcard_create,
     flashcard_edit,
     flashcard_delete,
+    historico_view,
+    get_history_data,
 )
 
 urlpatterns = [
@@ -29,4 +31,8 @@ urlpatterns = [
     path("flashcard/<int:flashcard_id>/editar/", flashcard_edit, name="flashcard_edit"),
     path("flashcard/<int:flashcard_id>/excluir/", flashcard_delete, name="flashcard_delete"),
     path("flashcard/<int:flashcard_id>/update/", update_flashcard_status, name="update_flashcard_status"),
+
+    # Histórico de estudos
+    path("historico/", historico_view, name="historico"),
+    path("historico/api/dados/", get_history_data, name="historico_api"),
 ]

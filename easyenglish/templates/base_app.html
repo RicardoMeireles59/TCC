@@ -1,34 +1,61 @@
 {% extends 'base.html' %}
+{% load static %}
+{% load icons %}
+{% load cache_bust %}
 
 {% block content %}
 <div class="dashboard-layout">
 
-    <aside class="sidebar">
-        <div class="logo-brand sidebar-logo">
-            <span class="logo-text">Easy<span class="accent">English</span></span>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-brand sidebar-logo">
+                <span class="logo-text">Easy<span class="accent">English</span></span>
+                <span class="logo-mark accent">E</span>
+            </div>
+            <button type="button" class="btn-icon collapse-btn" id="sidebarCollapseBtn" title="Recolher menu">
+                <span class="icon-collapse">{% icon 'chevrons-left' size=18 %}</span>
+            </button>
         </div>
         <nav>
             <ul>
-                <li><a href="{% url 'dashboard' %}"        class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">🏠 Início</a></li>
-                <li><a href="{% url 'flashcards_list' %}"  class="{% if request.resolver_match.url_name == 'flashcards_list' %}active{% endif %}">🗂️ Flashcards</a></li>
-                <li><a href="{% url 'study' %}"            class="{% if request.resolver_match.url_name == 'study' %}active{% endif %}">🎴 Estudar</a></li>
-                <li><a href="{% url 'historico' %}"  class="{% if request.resolver_match.url_name == 'historico' %}active{% endif %}">🕒 Histórico</a></li>
+                <li><a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" title="Início">{% icon 'home' size=19 %}<span class="nav-label">Início</span></a></li>
+                <li><a href="{% url 'flashcards_list' %}" class="{% if request.resolver_match.url_name == 'flashcards_list' %}active{% endif %}" title="Flashcards">{% icon 'layers' size=19 %}<span class="nav-label">Flashcards</span></a></li>
+                <li><a href="{% url 'study' %}" class="{% if request.resolver_match.url_name == 'study' %}active{% endif %}" title="Estudar">{% icon 'book-open' size=19 %}<span class="nav-label">Estudar</span></a></li>
+                <li><a href="{% url 'historico' %}" class="{% if request.resolver_match.url_name == 'historico' %}active{% endif %}" title="Histórico">{% icon 'clock' size=19 %}<span class="nav-label">Histórico</span></a></li>
             </ul>
         </nav>
+        <div class="sidebar-footer">
+            <div class="nav-user">
+                <span class="avatar">{% icon 'user' size=16 %}</span>
+                <span class="username">{{ request.user.username }}</span>
+            </div>
+            <a href="{% url 'logout' %}" class="logout-link" title="Sair">{% icon 'log-out' size=19 %}<span class="logout-label">Sair</span></a>
+        </div>
     </aside>
 
     <main class="dashboard-content">
         <header class="top-nav">
+            <button type="button" class="btn-icon sidebar-mobile-toggle" id="sidebarMobileToggle" title="Abrir menu">{% icon 'menu' size=19 %}</button>
             <div class="nav-links"><strong>{% block page_title %}{% endblock %}</strong></div>
             <div class="right">
                 <span class="nav-user">{{ request.user.username }}</span>
-                <a href="{% url 'logout' %}" class="btn-outline">Sair</a>
-                <span class="profile-icon">👤</span>
+                <span class="profile-icon">{% icon 'user' size=17 %}</span>
+                <button type="button" class="theme-toggle-btn theme-toggle-inline" id="themeToggle" title="Alternar tema">
+                    <span class="icon-sun">{% icon 'sun' size=17 %}</span>
+                    <span class="icon-moon">{% icon 'moon' size=17 %}</span>
+                </button>
             </div>
         </header>
 
-        {% block app_content %}{% endblock %}
+        <div class="page-inner">
+            {% block app_content %}{% endblock %}
+        </div>
     </main>
 
 </div>
+<script src="{% static_v 'js/sidebar.js' %}"></script>
+{% endblock %}
+
+{% block theme %}
+<script src="{% static_v 'js/theme.js' %}"></script>
 {% endblock %}

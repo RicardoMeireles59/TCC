@@ -1,3 +1,4 @@
+{% load icons %}
 <div class="fc-card">
 
     {% if flashcard.video %}
@@ -14,20 +15,27 @@
 
     <form method="post" action="{% url 'update_flashcard_status' flashcard.id %}">
         {% csrf_token %}
-        <select name="status">
-            <option value="new"      {% if flashcard.status == 'new' %}selected{% endif %}>Novo</option>
-            <option value="learning" {% if flashcard.status == 'learning' %}selected{% endif %}>Aprendendo</option>
-            <option value="reviewed" {% if flashcard.status == 'reviewed' %}selected{% endif %}>Revisado</option>
-        </select>
-        <input type="number" name="progress" value="{{ flashcard.progress }}" min="0" max="100">
+        <div class="fc-update-row">
+            <div class="select-wrap">
+                <select name="status">
+                    <option value="new"      {% if flashcard.status == 'new' %}selected{% endif %}>Novo</option>
+                    <option value="learning" {% if flashcard.status == 'learning' %}selected{% endif %}>Aprendendo</option>
+                    <option value="reviewed" {% if flashcard.status == 'reviewed' %}selected{% endif %}>Revisado</option>
+                </select>
+                {% icon 'chevron-down' size=15 %}
+            </div>
+            <input type="number" name="progress" value="{{ flashcard.progress }}" min="0" max="100">
+        </div>
         <button class="btn-outline" type="submit" style="width:100%;">Atualizar progresso</button>
     </form>
 
     <div class="fc-actions">
-        <a href="{% url 'flashcard_edit' flashcard.id %}" class="btn-outline" style="text-align:center;">Editar</a>
-        <form method="post" action="{% url 'flashcard_delete' flashcard.id %}" onsubmit="return confirm('Excluir este flashcard?');">
+        <a href="{% url 'flashcard_edit' flashcard.id %}" class="btn-outline" style="text-align:center;">{% icon 'pencil' size=14 %}<span>Editar</span></a>
+        <form method="post" action="{% url 'flashcard_delete' flashcard.id %}"
+              data-confirm="Esta ação não pode ser desfeita. O flashcard será excluído permanentemente."
+              data-confirm-title="Excluir este flashcard?" data-confirm-text="Excluir" data-confirm-danger="true">
             {% csrf_token %}
-            <button class="btn-outline btn-danger" type="submit" style="width:100%;">Excluir</button>
+            <button class="btn-outline btn-danger" type="submit" style="width:100%;">{% icon 'trash' size=14 %}<span>Excluir</span></button>
         </form>
     </div>
 

@@ -1,49 +1,60 @@
 {% extends 'base_app.html' %}
 {% load static %}
+{% load icons %}
+{% load cache_bust %}
 {% block title %}Estudar — EasyEnglish{% endblock %}
 {% block page_title %}Estudar{% endblock %}
-{% block extra_head %}<link rel="stylesheet" href="{% static 'css/study.css' %}">{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static_v 'css/study.css' %}">{% endblock %}
 
 {% block app_content %}
 <div class="study-page">
 
+    <div class="page-header">
+        <div class="heading-group">
+            <span class="eyebrow">Modo de estudo</span>
+            <h1>Revisar flashcards</h1>
+        </div>
+    </div>
+
     <div class="barra-status">
-        <div class="status-card acertos"><h2>{{ counts.acertos }}</h2><p>Acertos</p></div>
-        <div class="status-card revisao"><h2>{{ counts.revisoes }}</h2><p>Revisões</p></div>
-        <div class="status-card erros"><h2>{{ counts.erros }}</h2><p>Erros</p></div>
+        <div class="status-card acertos">
+            <span class="status-icon">{% icon 'check-circle' size=18 %}</span>
+            <div><h2>{{ counts.acertos }}</h2><p>Acertos</p></div>
+        </div>
+        <div class="status-card revisao">
+            <span class="status-icon">{% icon 'clock' size=18 %}</span>
+            <div><h2>{{ counts.revisoes }}</h2><p>Em revisão</p></div>
+        </div>
+        <div class="status-card erros">
+            <span class="status-icon">{% icon 'x-circle' size=18 %}</span>
+            <div><h2>{{ counts.erros }}</h2><p>Erros</p></div>
+        </div>
     </div>
 
     {% if cards %}
-    <div class="contador">Card <span id="card-atual">1</span> de <span id="total-cards">{{ cards|length }}</span></div>
+    <div class="study-progress">
+        <div class="study-progress-track"><div class="study-progress-fill" id="progress-fill"></div></div>
+        <div class="study-progress-label">Card <span id="card-atual">1</span> de <span id="total-cards">{{ cards|length }}</span></div>
+    </div>
 
     <div class="review-container">
         {% for fc in cards %}
         <div class="card-slot">
             <div class="flashcard">
-                <div class="card-inner">
-                    <div class="front">
-                        <span class="face-label">English</span>
-                        <p>{{ fc.phrase }}</p>
-                        <span class="flip-hint">clique para ver a tradução</span>
-                    </div>
-                    <div class="back">
-                        <span class="face-label">Tradução</span>
-                        <p>{{ fc.translation|default:"—" }}</p>
-                    </div>
-                </div>
+                <span class="face-label">{% icon 'book-open' size=13 %}<span>English</span></span>
+                <p class="phrase">{{ fc.phrase }}</p>
+                <div class="card-divider"></div>
+                <span class="face-label translation-label">{% icon 'check' size=13 %}<span>Tradução</span></span>
+                <p class="translation">{{ fc.translation|default:"—" }}</p>
             </div>
             <div class="status-resposta">
                 <form method="post" action="{% url 'update_flashcard_status' fc.id %}">
-                    {% csrf_token %}<input type="hidden" name="status" value="reviewed"><input type="hidden" name="origem" value="study">
-                    <button class="acertou-btn" type="submit">Acertei</button>
-                </form>
-                <form method="post" action="{% url 'update_flashcard_status' fc.id %}">
-                    {% csrf_token %}<input type="hidden" name="status" value="learning"><input type="hidden" name="origem" value="study">
-                    <button class="revisar-btn" type="submit">Revisar</button>
-                </form>
-                <form method="post" action="{% url 'update_flashcard_status' fc.id %}">
                     {% csrf_token %}<input type="hidden" name="status" value="new"><input type="hidden" name="origem" value="study">
-                    <button class="errou-btn" type="submit">Errei</button>
+                    <button class="errou-btn" type="submit">{% icon 'x' size=17 %}<span>Errei</span></button>
+                </form>
+                <form method="post" action="{% url 'update_flashcard_status' fc.id %}">
+                    {% csrf_token %}<input type="hidden" name="status" value="reviewed"><input type="hidden" name="origem" value="study">
+                    <button class="acertou-btn" type="submit">{% icon 'check' size=17 %}<span>Acertei</span></button>
                 </form>
             </div>
         </div>
@@ -51,9 +62,8 @@
     </div>
 
     <div class="controles">
-        <button id="btn-anterior" type="button">← Anterior</button>
-        <button class="btn-virar" id="btn-virar" type="button">Virar Card</button>
-        <button id="btn-proximo" type="button">Próximo →</button>
+        <button id="btn-anterior" type="button">{% icon 'chevron-left' size=16 %}<span>Anterior</span></button>
+        <button id="btn-proximo" type="button"><span>Próximo</span>{% icon 'chevron-right' size=16 %}</button>
     </div>
     {% else %}
     <div class="empty-hint">Nenhum flashcard para estudar. Crie alguns em <a href="{% url 'flashcards_list' %}">Flashcards</a>.</div>
@@ -62,4 +72,4 @@
 </div>
 {% endblock %}
 
-{% block extra_scripts %}<script src="{% static 'js/study.js' %}"></script>{% endblock %}
+{% block extra_scripts %}<script src="{% static_v 'js/study.js' %}"></script>{% endblock %}

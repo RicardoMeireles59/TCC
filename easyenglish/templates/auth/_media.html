@@ -1,0 +1,9 @@
+{% load static %}
+{% comment %}Painel lateral de imagem com citação em efeito typewriter.
+Parâmetros: image (caminho dentro de static/, ex. 'img/auth-hero.webp'), alt, quote, author{% endcomment %}
+<div class="auth-media-side" role="img" aria-label="{{ alt }}" style="background-image: url('{% static image %}');">
+    <blockquote class="auth-quote">
+        <p>“<span class="typewriter" data-typewriter="{{ quote }}" data-speed="55"></span>”</p>
+        <cite>— {{ author }}</cite>
+    </blockquote>
+</div>

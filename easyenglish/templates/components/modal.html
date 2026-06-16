@@ -1,0 +1,13 @@
+{% load icons %}
+{% comment %}Modal de confirmação global — substitui confirm()/alert() nativos. Controlado via EasyModal (modal.js){% endcomment %}
+<div class="modal-overlay" id="modalOverlay" hidden>
+    <div class="modal-panel" role="alertdialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalMessage" tabindex="-1">
+        <span class="modal-icon" id="modalIcon">{% icon 'alert-triangle' size=22 %}</span>
+        <h3 class="modal-title" id="modalTitle"></h3>
+        <p class="modal-message" id="modalMessage"></p>
+        <div class="modal-actions">
+            <button type="button" class="btn-outline" id="modalCancelBtn">Cancelar</button>
+            <button type="button" class="btn-primary" id="modalConfirmBtn">Confirmar</button>
+        </div>
+    </div>
+</div>

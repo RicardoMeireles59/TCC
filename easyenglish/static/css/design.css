@@ -98,7 +98,7 @@ html, body {
     color: var(--text-secondary);
     font-size: var(--font-size-md);
     line-height: 1.5;
-    overflow-x: hidden;
+    overflow-x: clip;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 

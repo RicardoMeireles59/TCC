@@ -40,14 +40,20 @@
     <div class="review-container">
         {% for fc in cards %}
         <div class="card-slot">
-            <div class="flashcard">
-                <span class="face-label">{% icon 'book-open' size=13 %}<span>English</span></span>
-                <p class="phrase">{{ fc.phrase }}</p>
-                <div class="card-divider"></div>
-                <span class="face-label translation-label">{% icon 'check' size=13 %}<span>Tradução</span></span>
-                <p class="translation">{{ fc.translation|default:"—" }}</p>
+            <div class="flashcard" tabindex="0" role="button" aria-label="Clique para ver a tradução">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">
+                        <span class="face-label">{% icon 'book-open' size=13 %}<span>English</span></span>
+                        <p class="phrase">{{ fc.phrase }}</p>
+                        <span class="flip-hint">{% icon 'rotate-cw' size=13 %} Clique para ver a tradução</span>
+                    </div>
+                    <div class="flashcard-back">
+                        <span class="face-label translation-label">{% icon 'check' size=13 %}<span>Tradução</span></span>
+                        <p class="translation">{{ fc.translation|default:"—" }}</p>
+                    </div>
+                </div>
             </div>
-            <div class="status-resposta">
+            <div class="status-resposta" hidden>
                 <form method="post" action="{% url 'update_flashcard_status' fc.id %}">
                     {% csrf_token %}<input type="hidden" name="status" value="new"><input type="hidden" name="origem" value="study">
                     <button class="errou-btn" type="submit">{% icon 'x' size=17 %}<span>Errei</span></button>

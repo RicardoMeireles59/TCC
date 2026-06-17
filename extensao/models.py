@@ -53,6 +53,7 @@ class Flashcard(models.Model):
                              null=True, blank=True)
     video = models.ForeignKey(Video, on_delete=models.SET_NULL, related_name='flashcards',
                               null=True, blank=True)
+    source_video_id = models.CharField(max_length=50, blank=True)  # id do vídeo de origem (YouTube)
     phrase = models.TextField()                       # EN
     translation = models.TextField(blank=True)        # PT
     deck = models.CharField(max_length=30, choices=DECK_CHOICES, default='geral')

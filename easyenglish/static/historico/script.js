@@ -4,7 +4,6 @@
 
 const historyTableBody = document.getElementById('historyTableBody');
 const emptyState = document.getElementById('emptyState');
-const themeToggle = document.getElementById('themeToggle');
 const searchInput = document.getElementById('searchInput');
 const filterSelect = document.getElementById('filterSelect');
 const clearHistoryBtn = document.getElementById('clearHistoryBtn');
@@ -16,37 +15,6 @@ const totalIncorrectEl = document.getElementById('total-incorrect');
 
 // Dados locais (serão carregados da API)
 let mockHistoryData = [];
-
-/* ════════════════════════════════════════════════════════════
-   TEMA - DARK / LIGHT
-   ════════════════════════════════════════════════════════════ */
-
-function initTheme() {
-  const savedTheme = localStorage.getItem('theme') || 'dark';
-  applyTheme(savedTheme);
-  updateThemeToggleText(savedTheme);
-}
-
-function applyTheme(theme) {
-  if (theme === 'white') {
-    document.documentElement.setAttribute('data-theme', 'white');
-    localStorage.setItem('theme', 'white');
-  } else {
-    document.documentElement.removeAttribute('data-theme');
-    localStorage.setItem('theme', 'dark');
-  }
-}
-
-function updateThemeToggleText(theme) {
-  themeToggle.textContent = theme === 'white' ? '🌙 Dark' : '☀️ White';
-}
-
-function toggleTheme() {
-  const currentTheme = localStorage.getItem('theme') || 'dark';
-  const newTheme = currentTheme === 'white' ? 'dark' : 'white';
-  applyTheme(newTheme);
-  updateThemeToggleText(newTheme);
-}
 
 /* ════════════════════════════════════════════════════════════
    CALCULAR TAXA DE ACERTO
@@ -213,14 +181,20 @@ function filterHistory() {
    LIMPAR HISTÓRICO
    ════════════════════════════════════════════════════════════ */
 
-function clearHistory() {
-  if (confirm('Tem certeza que deseja limpar todo o histórico? Esta ação não pode ser desfeita.')) {
-    mockHistoryData.length = 0;
-    renderHistoryTable(mockHistoryData);
-    updateStats(mockHistoryData);
-    searchInput.value = '';
-    filterSelect.value = '';
-  }
+async function clearHistory() {
+  const ok = await window.EasyModal.confirm({
+    title: 'Limpar todo o histórico?',
+    message: 'Esta ação não pode ser desfeita.',
+    confirmText: 'Limpar',
+    danger: true,
+  });
+  if (!ok) return;
+
+  mockHistoryData.length = 0;
+  renderHistoryTable(mockHistoryData);
+  updateStats(mockHistoryData);
+  searchInput.value = '';
+  filterSelect.value = '';
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -228,14 +202,10 @@ function clearHistory() {
    ════════════════════════════════════════════════════════════ */
 
 function init() {
-  // Tema
-  initTheme();
-
   // Carregar dados
   loadHistoryData();
 
   // Event Listeners
-  themeToggle.addEventListener('click', toggleTheme);
   searchInput.addEventListener('input', filterHistory);
   filterSelect.addEventListener('change', filterHistory);
   clearHistoryBtn.addEventListener('click', clearHistory);

@@ -58,6 +58,15 @@ class CaptionReceiveView(APIView):
                     en=en_sent,
                     pt=pt_sent,
                     video_id=video_id,
+                    saved_as_flashcard=True,
+                )
+                # Toda frase capturada vira um flashcard estudável (baralho "Do vídeo").
+                Flashcard.objects.create(
+                    user=request.user,
+                    phrase=en_sent,
+                    translation=pt_sent,
+                    deck='video',
+                    source_video_id=video_id,
                 )
                 created += 1
 

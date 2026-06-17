@@ -1,9 +1,17 @@
 {% extends 'base_app.html' %}
+{% load icons %}
 {% block title %}{{ modo }} flashcard — EasyEnglish{% endblock %}
 {% block page_title %}{{ modo }} flashcard{% endblock %}
 
 {% block app_content %}
-<div class="form-wrapper center-form" style="margin: 0 auto;">
+<div class="page-header">
+    <div class="heading-group">
+        <span class="eyebrow">Flashcard</span>
+        <h1>{{ modo }} flashcard</h1>
+    </div>
+</div>
+
+<div class="form-wrapper center-form form-card" style="margin: 0 auto;">
 
     <form method="post">
         {% csrf_token %}
@@ -15,13 +23,13 @@
         {{ form.translation }}
 
         <div class="input-row">
-            <div><label>Baralho</label>{{ form.deck }}</div>
-            <div><label>Status</label>{{ form.status }}</div>
+            <div><label>Baralho</label><div class="select-wrap">{{ form.deck }}{% icon 'chevron-down' size=15 %}</div></div>
+            <div><label>Status</label><div class="select-wrap">{{ form.status }}{% icon 'chevron-down' size=15 %}</div></div>
         </div>
 
         <div class="input-row">
             <div><label>Progresso (%)</label>{{ form.progress }}</div>
-            <div><label>Vídeo (opcional)</label>{{ form.video }}</div>
+            <div><label>Vídeo (opcional)</label><div class="select-wrap">{{ form.video }}{% icon 'chevron-down' size=15 %}</div></div>
         </div>
 
         {% if form.errors %}
@@ -33,7 +41,7 @@
         {% endif %}
 
         <button type="submit" class="btn-primary">Salvar</button>
-        <p class="switch-screen"><a href="{% url 'flashcards_list' %}">Voltar</a></p>
+        <p class="switch-screen"><a href="{% url 'flashcards_list' %}">{% icon 'arrow-left' size=13 %} Voltar</a></p>
     </form>
 
 </div>

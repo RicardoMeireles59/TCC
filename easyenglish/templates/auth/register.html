@@ -1,29 +1,83 @@
 {% extends 'base.html' %}
+{% load static %}
+{% load icons %}
+{% load cache_bust %}
 {% block title %}Cadastro — EasyEnglish{% endblock %}
 
 {% block content %}
-<div class="register-container">
-    <div class="form-wrapper center-form">
-        <div class="logo-brand text-center">
-            <span class="logo-text">Easy<span class="accent">English</span></span>
+<div class="auth-split">
+
+    <div class="auth-form-side">
+        <div class="auth-form-card">
+            <div class="logo-brand text-center auth-logo">
+                <span class="logo-text">Easy<span class="accent">English</span></span>
+            </div>
+
+            <div class="auth-form-head">
+                <h1>Crie sua conta</h1>
+                <p>Insira seus dados abaixo para começar.</p>
+            </div>
+
+            <form method="post" class="auth-form" autocomplete="on">
+                {% csrf_token %}
+
+                <div class="auth-field">
+                    <label for="id_username">Usuário</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}<span class="field-error">{{ form.username.errors|join:", " }}</span>{% endif %}
+                </div>
+
+                <div class="auth-field">
+                    <label for="id_email">E-mail</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}<span class="field-error">{{ form.email.errors|join:", " }}</span>{% endif %}
+                </div>
+
+                <div class="auth-field">
+                    <label for="id_password">Senha</label>
+                    <div class="password-field" data-password-field>
+                        {{ form.password }}
+                        <button type="button" class="password-toggle" data-password-toggle
+                                aria-label="Mostrar ou ocultar senha" title="Mostrar/ocultar senha">
+                            <span data-eye-open>{% icon 'eye' size=18 %}</span>
+                            <span data-eye-closed hidden>{% icon 'eye-off' size=18 %}</span>
+                        </button>
+                    </div>
+                    {% if form.password.errors %}<span class="field-error">{{ form.password.errors|join:", " }}</span>{% endif %}
+                </div>
+
+                <div class="auth-field">
+                    <label for="id_confirm_password">Confirmar senha</label>
+                    <div class="password-field" data-password-field>
+                        {{ form.confirm_password }}
+                        <button type="button" class="password-toggle" data-password-toggle
+                                aria-label="Mostrar ou ocultar senha" title="Mostrar/ocultar senha">
+                            <span data-eye-open>{% icon 'eye' size=18 %}</span>
+                            <span data-eye-closed hidden>{% icon 'eye-off' size=18 %}</span>
+                        </button>
+                    </div>
+                    {% if form.confirm_password.errors %}<span class="field-error">{{ form.confirm_password.errors|join:", " }}</span>{% endif %}
+                </div>
+
+                <button type="submit" class="btn-primary auth-submit">Criar conta</button>
+            </form>
+
+            <p class="auth-switch">Já tem conta? <a href="{% url 'login' %}">Entrar</a></p>
+
+            <div class="auth-divider"><span>ou continue com</span></div>
+
+            <button type="button" class="auth-google" disabled title="Cadastro social em breve">
+                {% include 'auth/_google_icon.html' %}
+                Continuar com Google
+            </button>
         </div>
-
-        <h4>Crie sua conta gratuita</h4>
-
-        <form method="post">
-            {% csrf_token %}
-            <label>Usuário</label>
-            {{ form.username }}
-            <label>E-mail</label>
-            {{ form.email }}
-            <label>Senha</label>
-            {{ form.password }}
-            <label>Confirmar senha</label>
-            {{ form.confirm_password }}
-            <button type="submit" class="btn-primary">Criar conta</button>
-        </form>
-
-        <p class="switch-screen">Já tem conta? <a href="{% url 'login' %}">Entrar</a></p>
     </div>
+
+    {% include 'auth/_media.html' with image='img/auth-hero.webp' alt='Colagem ilustrativa do aprendizado de inglês' quote='Crie sua conta. Um novo capítulo começa.' author='EasyEnglish' %}
+
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static_v 'js/auth.js' %}"></script>
 {% endblock %}

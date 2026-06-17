@@ -1,4 +1,6 @@
 {% load static %}
+{% load icons %}
+{% load cache_bust %}
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -7,7 +9,7 @@
     <title>{% block title %}EasyEnglish{% endblock %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/design.css' %}">
+    <link rel="stylesheet" href="{% static_v 'css/design.css' %}">
     <script>
         // Aplica o tema salvo cedo, evitando "flash".
         (function () {
@@ -21,19 +23,39 @@
 <body>
 
     {% if messages %}
-        <div class="messages">
+        <div class="messages" id="messages">
             {% for message in messages %}
-                <div class="msg {% if 'success' in message.tags %}success{% elif 'error' in message.tags %}error{% endif %}">{{ message }}</div>
+                <div class="msg {% if 'success' in message.tags %}success{% elif 'error' in message.tags %}error{% endif %}">
+                    {% if 'success' in message.tags %}{% icon 'check-circle' size=16 %}{% elif 'error' in message.tags %}{% icon 'x-circle' size=16 %}{% endif %}
+                    <span>{{ message }}</span>
+                    <button type="button" class="msg-close" aria-label="Fechar">{% icon 'x' size=14 %}</button>
+                </div>
             {% endfor %}
         </div>
+        <script src="{% static_v 'js/messages.js' %}"></script>
     {% endif %}
 
     {% block content %}{% endblock %}
 
     {% block theme %}
-        <button class="theme-toggle-btn" id="themeToggle" title="Alternar tema">🌓</button>
-        <script src="{% static 'js/theme.js' %}"></script>
+        <button class="theme-toggle-btn" id="themeToggle" title="Alternar tema">
+            <span class="icon-sun">{% icon 'sun' size=18 %}</span>
+            <span class="icon-moon">{% icon 'moon' size=18 %}</span>
+        </button>
+        <script src="{% static_v 'js/theme.js' %}"></script>
     {% endblock %}
+
+    {% include 'components/modal.html' %}
+    <script src="{% static_v 'js/modal.js' %}"></script>
+
+    {# Filtro SVG para o efeito "liquid glass" (variante .glass-liquid) #}
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <filter id="glass-distortion" x="0%" y="0%" width="100%" height="100%" filterUnits="objectBoundingBox">
+            <feTurbulence type="fractalNoise" baseFrequency="0.001 0.005" numOctaves="1" seed="17" result="turbulence"/>
+            <feGaussianBlur in="turbulence" stdDeviation="3" result="softMap"/>
+            <feDisplacementMap in="SourceGraphic" in2="softMap" scale="60" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+    </svg>
 
     {% block extra_scripts %}{% endblock %}
 </body>

@@ -1,37 +1,66 @@
 {% extends 'base.html' %}
+{% load static %}
+{% load icons %}
+{% load cache_bust %}
 {% block title %}Entrar — EasyEnglish{% endblock %}
 
 {% block content %}
-<div class="login-container">
+<div class="auth-split">
 
-    <div class="login-left">
-        <div class="main-logo-display">
-            <h1>Easy<span style="color:var(--green)">English</span></h1>
-        </div>
-        <h2>Aprenda com o que você já assiste</h2>
-        <p>Flashcards gerados automaticamente das legendas do YouTube.</p>
-    </div>
-
-    <div class="login-right">
-        <div class="form-wrapper">
-            <div class="logo-brand text-center">
+    <div class="auth-form-side">
+        <div class="auth-form-card">
+            <div class="logo-brand text-center auth-logo">
                 <span class="logo-text">Easy<span class="accent">English</span></span>
             </div>
 
-            <h4>Entrar na sua conta</h4>
+            <div class="auth-form-head">
+                <h1>Entrar na sua conta</h1>
+                <p>Insira seus dados para continuar aprendendo.</p>
+            </div>
 
-            <form method="post">
+            <form method="post" class="auth-form" autocomplete="on">
                 {% csrf_token %}
-                <label>Usuário</label>
-                {{ form.username }}
-                <label>Senha</label>
-                {{ form.password }}
-                <button type="submit" class="btn-primary">Entrar</button>
+
+                <div class="auth-field">
+                    <label for="id_username">Usuário</label>
+                    {{ form.username }}
+                </div>
+
+                <div class="auth-field">
+                    <label for="id_password">Senha</label>
+                    <div class="password-field" data-password-field>
+                        {{ form.password }}
+                        <button type="button" class="password-toggle" data-password-toggle
+                                aria-label="Mostrar ou ocultar senha" title="Mostrar/ocultar senha">
+                            <span data-eye-open>{% icon 'eye' size=18 %}</span>
+                            <span data-eye-closed hidden>{% icon 'eye-off' size=18 %}</span>
+                        </button>
+                    </div>
+                </div>
+
+                {% if form.non_field_errors %}
+                <div class="field-error">{{ form.non_field_errors|join:", " }}</div>
+                {% endif %}
+
+                <button type="submit" class="btn-primary auth-submit">Entrar</button>
             </form>
 
-            <p class="switch-screen">Não tem conta? <a href="{% url 'register' %}">Cadastre-se</a></p>
+            <p class="auth-switch">Não tem conta? <a href="{% url 'register' %}">Cadastre-se</a></p>
+
+            <div class="auth-divider"><span>ou continue com</span></div>
+
+            <button type="button" class="auth-google" disabled title="Login social em breve">
+                {% include 'auth/_google_icon.html' %}
+                Continuar com Google
+            </button>
         </div>
     </div>
 
+    {% include "auth/_media.html" with image="img/auth-hero.webp" alt="Colagem ilustrativa do aprendizado de inglês" quote="Que bom te ver de novo. A jornada continua." author="EasyEnglish" %}
+
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static_v 'js/auth.js' %}"></script>
 {% endblock %}

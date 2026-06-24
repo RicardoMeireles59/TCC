@@ -17,6 +17,7 @@
   }
 
   let videoId = null;
+  let videoTitle = '';        // título do vídeo atual (vem do page_reader via __ee_tracks__)
   let captureInterval = null;
   let urlObserver = null;
 
@@ -71,7 +72,15 @@
       return;
     }
     let tracks = [];
-    try { tracks = JSON.parse(e.detail); } catch (err) {
+    try {
+      const payload = JSON.parse(e.detail);
+      // Formato atual: { tracks, title }. (Tolera array puro de versões antigas.)
+      tracks = Array.isArray(payload) ? payload : (payload.tracks || []);
+      if (!Array.isArray(payload) && payload.title) {
+        videoTitle = payload.title;
+        console.log('[CS] título do vídeo recebido:', videoTitle);
+      }
+    } catch (err) {
       console.error('[CS] __ee_tracks__: parse falhou', err);
     }
     const langs = tracks.map(t => t.languageCode);
@@ -156,10 +165,33 @@
     }
   }
 
+  // ── Resolve o título do vídeo, com fallbacks ──────────────────────────────────
+  // 1) videoTitle exato vindo do page_reader (videoDetails.title), quando já chegou.
+  // 2) DOM da página de watch (h1 do título).
+  // 3) document.title ("(2) Título - YouTube"), limpando contador e sufixo.
+  // O fallback no DOM evita depender do timing/recarga do page_reader (MAIN world).
+  function getVideoTitle() {
+    if (videoTitle) return videoTitle;
+
+    const el = document.querySelector(
+      'h1.ytd-watch-metadata yt-formatted-string, #title h1 yt-formatted-string, h1.title yt-formatted-string'
+    );
+    const domTitle = el?.textContent?.trim();
+    if (domTitle) return domTitle;
+
+    return document.title
+      .replace(/^\(\d+\)\s*/, '')        // remove "(2) " (contador de notificações)
+      .replace(/\s*-\s*YouTube\s*$/, '') // remove sufixo " - YouTube"
+      .trim();
+  }
+
   function sendCaption(en) {
-    console.log('[CS] enviando trecho EN ao background:', en);
+    // URL canônica do vídeo (sem parâmetros de tempo/playlist).
+    const videoUrl = videoId ? `https://www.youtube.com/watch?v=${videoId}` : '';
+    const title = getVideoTitle();
+    console.log('[CS] enviando trecho EN ao background:', en, '| title:', title);
     try {
-      chrome.runtime.sendMessage({ type: 'CAPTION_EN', en, videoId });
+      chrome.runtime.sendMessage({ type: 'CAPTION_EN', en, videoId, videoUrl, videoTitle: title });
     } catch {
       stopEverything('chrome.runtime.sendMessage falhou');
     }
@@ -199,6 +231,7 @@
   function resetTranscript() {
     transcriptWords = [];
     emittedWords = 0;
+    videoTitle = '';
   }
 
   function init() {

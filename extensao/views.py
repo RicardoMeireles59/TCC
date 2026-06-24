@@ -36,9 +36,16 @@ class CaptionReceiveView(APIView):
         en_raw = request.data.get('en', '').strip()
         pt_raw = request.data.get('pt', '').strip()
         video_id = request.data.get('video_id', '').strip()[:50]
+        video_url = request.data.get('video_url', '').strip()[:500]
+        video_title = request.data.get('video_title', '').strip()[:255]
 
         if not en_raw:
             return Response({'error': 'en é obrigatório'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Fallback: monta a URL canônica do YouTube a partir do id, caso a extensão
+        # não a tenha enviado.
+        if not video_url and video_id:
+            video_url = f'https://www.youtube.com/watch?v={video_id}'
 
         en_sentences = _split_into_sentences(en_raw) or [en_raw]
         pt_sentences = _split_into_sentences(pt_raw) if pt_raw else []
@@ -58,6 +65,8 @@ class CaptionReceiveView(APIView):
                     en=en_sent,
                     pt=pt_sent,
                     video_id=video_id,
+                    video_url=video_url,
+                    video_title=video_title,
                     saved_as_flashcard=True,
                 )
                 # Toda frase capturada vira um flashcard estudável (baralho "Do vídeo").
@@ -67,6 +76,8 @@ class CaptionReceiveView(APIView):
                     translation=pt_sent,
                     deck='video',
                     source_video_id=video_id,
+                    video_url=video_url,
+                    video_title=video_title,
                 )
                 created += 1
 
@@ -103,7 +114,8 @@ class FlashcardView(APIView):
     authentication_classes = [TokenAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticated]
 
-    FIELDS = ('id', 'phrase', 'translation', 'deck', 'status', 'progress', 'video', 'created_at')
+    FIELDS = ('id', 'phrase', 'translation', 'deck', 'status', 'progress', 'video',
+              'source_video_id', 'video_url', 'video_title', 'created_at')
 
     @staticmethod
     def _serialize(fc):
@@ -111,6 +123,8 @@ class FlashcardView(APIView):
             'id': fc.id, 'phrase': fc.phrase, 'translation': fc.translation,
             'deck': fc.deck, 'status': fc.status, 'progress': fc.progress,
             'video': fc.video_id,
+            'source_video_id': fc.source_video_id,
+            'video_url': fc.video_url, 'video_title': fc.video_title,
         }
 
     def _get_obj(self, request, pk):

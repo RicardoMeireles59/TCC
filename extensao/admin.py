@@ -4,9 +4,9 @@ from .models import CapturedSentence, Flashcard, Video
 
 @admin.register(CapturedSentence)
 class CapturedSentenceAdmin(admin.ModelAdmin):
-    list_display = ('en', 'pt', 'video_id', 'user', 'reviewed', 'captured_at')
+    list_display = ('en', 'pt', 'video_title', 'video_id', 'user', 'reviewed', 'captured_at')
     list_filter = ('reviewed', 'saved_as_flashcard', 'user')
-    search_fields = ('en', 'pt', 'video_id')
+    search_fields = ('en', 'pt', 'video_id', 'video_title')
     readonly_fields = ('captured_at',)
 
 

@@ -66,6 +66,7 @@
     console.log('[PAGE] request received for videoId=', targetVideoId);
 
     let attempt = 0;
+    let resolvedTitle = '';   // título do vídeo (videoDetails.title), capturado quando o id bate
     const MAX_ATTEMPTS = 20; // 20 x 500ms = 10s
 
     // Tenta obter o player response de múltiplas fontes, em ordem de confiabilidade.
@@ -95,14 +96,19 @@
         console.log('[PAGE] attempt', attempt, '— source:', source, '| videoId:', currentVideoId, '| target:', targetVideoId);
 
         if (response && currentVideoId === targetVideoId) {
+          // videoDetails.title carrega junto com o videoId (antes das captionTracks),
+          // então guardamos o título assim que o id bate.
+          if (!resolvedTitle) resolvedTitle = response?.videoDetails?.title || '';
           const tracks = response?.captions?.playerCaptionsTracklistRenderer?.captionTracks || [];
           // O videoId já bate, mas as captionTracks podem ainda não ter sido
           // populadas no player response (carregam depois do videoDetails). Só
           // finalizamos quando há trilhas; senão seguimos tentando até MAX_ATTEMPTS,
           // evitando o falso "vídeo sem legenda EN".
           if (tracks.length) {
-            console.log('[PAGE] tracks found:', tracks.length, tracks.map(t => t.languageCode));
-            document.dispatchEvent(new CustomEvent('__ee_tracks__', { detail: JSON.stringify(tracks) }));
+            console.log('[PAGE] tracks found:', tracks.length, tracks.map(t => t.languageCode), '| title:', resolvedTitle);
+            document.dispatchEvent(new CustomEvent('__ee_tracks__', {
+              detail: JSON.stringify({ tracks, title: resolvedTitle }),
+            }));
             enableEnglishCaptions(tracks);
             return;
           }
@@ -116,7 +122,9 @@
         setTimeout(tryGetTracks, 500);
       } else {
         console.warn('[PAGE] gave up after', MAX_ATTEMPTS, 'attempts — dispatching empty tracks');
-        document.dispatchEvent(new CustomEvent('__ee_tracks__', { detail: '[]' }));
+        document.dispatchEvent(new CustomEvent('__ee_tracks__', {
+          detail: JSON.stringify({ tracks: [], title: resolvedTitle }),
+        }));
       }
     }
 

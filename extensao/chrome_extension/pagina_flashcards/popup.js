@@ -25,6 +25,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   const sendBtn = document.getElementById('sendBtn');
   const feedback = document.getElementById('feedback');
 
+  // ── Sair da conta ──────────────────────────────────────────────────────────
+  const logoutBtn = document.getElementById('logoutBtn');
+  logoutBtn.addEventListener('click', async () => {
+    await chrome.storage.local.remove(['authToken', 'userEmail', 'loggedIn']);
+    window.location.href = '../pagina_login/login.html';
+  });
+
   // ── Tema dark/white ────────────────────────────────────────────────────────
   const themeToggle = document.getElementById('themeToggle');
 

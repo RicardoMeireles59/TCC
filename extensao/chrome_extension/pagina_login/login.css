@@ -3,11 +3,11 @@
    Design System: tipografia, bordas, temas
    ───────────────────────────────────────────── */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 /* ══ Tokens: Tipografia ══════════════════════ */
 :root {
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 
   --font-size-xs:  0.7rem;
   --font-size-sm:  0.75rem;
@@ -33,40 +33,48 @@
   --radius-full: 50%;
 }
 
-/* ══ Tema: Dark (padrão) ═════════════════════ */
+/* ══ Marca: vermelho, azul e branco ══════════ */
 :root {
-  --bg-base:             #131313;
-  --bg-surface:          #1a1a1a;
-  --bg-surface-hover:    #242424;
-
-  --border-light:        #262626;
-  --border-medium:       #333333;
-
-  --text-primary:        #ffffff;
-  --text-secondary:      #e0e0e0;
-  --text-muted:          #777777;
-  --text-inverted:       #000000;
-
-  --action-primary:      #ffffff;
-  --action-primary-hover:#dddddd;
+  --brand-navy: #1B2F63;
+  --brand-blue: #2C5FD9;
+  --brand-blue-bright: #5B86EC;
+  --brand-red:  #D31E2B;
 }
 
-/* ══ Tema: White ═════════════════════════════ */
-[data-theme="white"] {
-  --bg-base:             #F4F6F8;
-  --bg-surface:          #FFFFFF;
-  --bg-surface-hover:    #E2E8F0;
+/* ══ Tema: Dark (padrão) — "tinta azul-marinho" ═ */
+:root {
+  --bg-base:             #0A1124;
+  --bg-surface:          #121B36;
+  --bg-surface-hover:    #1C2A4D;
 
-  --border-light:        #E2E8F0;
-  --border-medium:       #CBD5E1;
+  --border-light:        #1E2A4A;
+  --border-medium:       #2C3B61;
 
-  --text-primary:        #0F172A;
-  --text-secondary:      #334155;
-  --text-muted:          #64748B;
+  --text-primary:        #F5F7FF;
+  --text-secondary:      #C7CEE6;
+  --text-muted:          #7C88AD;
   --text-inverted:       #FFFFFF;
 
-  --action-primary:      #0F172A;
-  --action-primary-hover:#334155;
+  --action-primary:      var(--brand-blue);
+  --action-primary-hover:var(--brand-blue-bright);
+}
+
+/* ══ Tema: White — "papel/creme" ═════════════ */
+[data-theme="white"] {
+  --bg-base:             #FAF6EE;
+  --bg-surface:          #FFFFFF;
+  --bg-surface-hover:    #ECE4D1;
+
+  --border-light:        #E8E0CC;
+  --border-medium:       #D8CCAE;
+
+  --text-primary:        #16203F;
+  --text-secondary:      #3C4768;
+  --text-muted:          #707C9C;
+  --text-inverted:       #FFFFFF;
+
+  --action-primary:      var(--brand-blue);
+  --action-primary-hover:var(--brand-navy);
 }
 
 /* ══ Reset ═══════════════════════════════════ */
@@ -114,8 +122,8 @@ body {
 }
 
 .logo span {
-  /* Destaque verde no nome */
-  color: #22c55e;
+  /* Destaque de marca no nome (vermelho) */
+  color: var(--brand-red);
 }
 
 .subtitle {
@@ -185,7 +193,7 @@ body {
   color: var(--text-primary);
   outline: none;
   transition: border-color 0.15s, background 0.15s;
-  caret-color: #22c55e;
+  caret-color: var(--brand-blue);
 }
 
 .input::placeholder {
@@ -199,7 +207,7 @@ body {
 }
 
 .input:focus {
-  border-color: #22c55e;
+  border-color: var(--brand-blue);
   background: var(--bg-base);
 }
 
@@ -216,7 +224,7 @@ body {
   transition: color 0.15s;
 }
 
-.forgot-link:hover { color: #22c55e; }
+.forgot-link:hover { color: var(--brand-blue); }
 
 /* ══ Botão principal ═════════════════════════ */
 .btn-primary {
@@ -278,7 +286,7 @@ body {
   transition: color 0.15s;
 }
 
-.footer-text a:hover { color: #22c55e; }
+.footer-text a:hover { color: var(--brand-blue); }
 
 /* ══ Botão de tema (canto superior direito) ══ */
 .theme-toggle {

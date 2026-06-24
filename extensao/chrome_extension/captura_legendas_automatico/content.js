@@ -149,14 +149,15 @@ function startAutoCapture() {
       stopEverything('extension context invalidated');
       return;
     }
-    let active;
+    let active, authToken;
     try {
-      ({ active } = await chrome.storage.local.get('active'));
+      ({ active, authToken } = await chrome.storage.local.get(['active', 'authToken']));
     } catch {
       stopEverything('chrome.storage.local.get falhou');
       return;
     }
     if (active === false) return;
+    if (!authToken) return; // só captura quem estiver logado na extensão
 
     const video = document.querySelector('video');
     if (!video || video.paused) return;

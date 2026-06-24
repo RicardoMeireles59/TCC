@@ -44,6 +44,11 @@ chrome.runtime.onMessage.addListener((msg, sender, respond) => {
   if (msg.type === 'CAPTION_EN') {
     console.log('[BG] CAPTION_EN received — en:', msg.en?.slice(0, 80), '| videoId:', msg.videoId);
     (async () => {
+      const { authToken } = await chrome.storage.local.get('authToken');
+      if (!authToken) {
+        console.warn('[BG] CAPTION_EN ignorado — usuário não está logado na extensão.');
+        return;
+      }
       const pt = await translateToPt(msg.en);
       console.log('[BG] traduzido PT:', pt.slice(0, 80));
       const headers = await getAuthHeaders();

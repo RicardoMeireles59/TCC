@@ -7,6 +7,8 @@ class CapturedSentence(models.Model):
     en = models.TextField()
     pt = models.TextField(blank=True)
     video_id = models.CharField(max_length=50, blank=True, db_index=True)
+    video_url = models.URLField(max_length=500, blank=True)
+    video_title = models.CharField(max_length=255, blank=True)
     captured_at = models.DateTimeField(auto_now_add=True)
     reviewed = models.BooleanField(default=False)
     saved_as_flashcard = models.BooleanField(default=False)
@@ -54,6 +56,8 @@ class Flashcard(models.Model):
     video = models.ForeignKey(Video, on_delete=models.SET_NULL, related_name='flashcards',
                               null=True, blank=True)
     source_video_id = models.CharField(max_length=50, blank=True)  # id do vídeo de origem (YouTube)
+    video_url = models.URLField(max_length=500, blank=True)        # link do vídeo de origem
+    video_title = models.CharField(max_length=255, blank=True)     # título do vídeo de origem
     phrase = models.TextField()                       # EN
     translation = models.TextField(blank=True)        # PT
     deck = models.CharField(max_length=30, choices=DECK_CHOICES, default='geral')

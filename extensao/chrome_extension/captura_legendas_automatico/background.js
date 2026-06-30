@@ -42,7 +42,7 @@ chrome.runtime.onMessage.addListener((msg, sender, respond) => {
 
   // ── Recebe trecho EN da tela → traduz → envia o par ao Django ──────────────
   if (msg.type === 'CAPTION_EN') {
-    console.log('[BG] CAPTION_EN received — en:', msg.en?.slice(0, 80), '| videoId:', msg.videoId);
+    console.log('[BG] CAPTION_EN received — en:', msg.en?.slice(0, 80), '| videoId:', msg.videoId, '| title:', msg.videoTitle);
     (async () => {
       const { authToken } = await chrome.storage.local.get('authToken');
       if (!authToken) {
@@ -52,7 +52,13 @@ chrome.runtime.onMessage.addListener((msg, sender, respond) => {
       const pt = await translateToPt(msg.en);
       console.log('[BG] traduzido PT:', pt.slice(0, 80));
       const headers = await getAuthHeaders();
-      const body = JSON.stringify({ en: msg.en, pt, video_id: msg.videoId || '' });
+      const body = JSON.stringify({
+        en: msg.en,
+        pt,
+        video_id: msg.videoId || '',
+        video_url: msg.videoUrl || '',
+        video_title: msg.videoTitle || '',
+      });
       try {
         const r = await fetch(`${API_BASE}/api/captions/`, { method: 'POST', headers, body });
         const json = await r.json().catch(() => null);

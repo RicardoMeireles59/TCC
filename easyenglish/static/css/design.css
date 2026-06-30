@@ -458,6 +458,11 @@ body.modal-open { overflow: hidden; }
     padding: 0.2rem 0.55rem; border: 1px dashed var(--brand-blue-border); border-radius: var(--radius-sm);
     background: var(--brand-blue-dim); transform: rotate(-1.5deg);
 }
+.fc-card .fc-deck { font-size: var(--font-size-xs); text-transform: uppercase; letter-spacing: 0.08em; font-weight: var(--font-weight-semibold); color: var(--green); margin-bottom: 0.4rem; }
+.fc-card .fc-video-link { display: inline-flex; align-items: center; gap: 0.3rem; max-width: 100%; font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); color: var(--green); margin-bottom: 0.4rem; text-decoration: none; }
+.fc-card .fc-video-link:hover { text-decoration: underline; }
+.fc-card .fc-video-link .fc-video-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fc-card .fc-video-link .icon { flex-shrink: 0; }
 .fc-card .fc-phrase { color: var(--text-primary); font-weight: var(--font-weight-semibold); margin-bottom: 0.25rem; font-size: var(--font-size-md); }
 .fc-card .fc-translation { color: var(--text-muted); margin-bottom: 0.9rem; font-size: var(--font-size-sm); }
 .fc-card form { margin: 0 0 0.7rem; }

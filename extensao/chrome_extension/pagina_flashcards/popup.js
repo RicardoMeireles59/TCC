@@ -85,9 +85,41 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ── Estado do toggle (persistido) ─────────────────────────────────────────
   const { active } = await chrome.storage.local.get('active');
   toggle.checked = active ?? true;
-  toggle.addEventListener('change', () => {
+  // Popup aberto com a extensão já ligada: garante o content script na aba atual.
+  // Cobre o caso do toggle no padrão "ligado", em que não há evento `change` ao abrir.
+  if (toggle.checked) ensureContentScript();
+  toggle.addEventListener('change', async () => {
     chrome.storage.local.set({ active: toggle.checked });
+    // Ao LIGAR, garante o content script na aba atual (reinjeta sem recarregar):
+    // cobre abas abertas antes da extensão / content script órfão.
+    if (toggle.checked) await ensureContentScript();
   });
+
+  // ── Garante o content script na aba atual, sem recarregar a página ───────────
+  // Reinjeta page_reader.js (MAIN) + content.js (isolated). Os scripts são
+  // idempotentes: a instância anterior é substituída sem duplicar; aba órfã/sem
+  // script passa a funcionar na hora.
+  async function ensureContentScript() {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tab || !/^https?:\/\/([^/]*\.)?youtube\.com\//.test(tab.url || '')) {
+      console.log('[POPUP] aba atual não é YouTube — nada a injetar');
+      return;
+    }
+    try {
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        world: 'MAIN',
+        files: ['captura_legendas_automatico/page_reader.js'],
+      });
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        files: ['captura_legendas_automatico/content.js'],
+      });
+      console.log('[POPUP] content script garantido na aba', tab.id);
+    } catch (err) {
+      console.warn('[POPUP] falha ao injetar content script:', err);
+    }
+  }
 
   // ── Cor do select quando tem valor ────────────────────────────────────────
   deckSelect.addEventListener('change', () => {

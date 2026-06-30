@@ -1,8 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 /* ══ Tokens: Tipografia ══════════════════════ */
 :root {
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 
   --font-size-xs:  0.7rem;
   --font-size-sm:  0.75rem;
@@ -25,40 +25,48 @@
   --radius-pill: 20px;
 }
 
-/* ══ Tema: Dark (padrão) ═════════════════════ */
+/* ══ Marca: vermelho, azul e branco ══════════ */
 :root {
-  --bg-base:             #131313;
-  --bg-surface:          #1a1a1a;
-  --bg-surface-hover:    #242424;
-
-  --border-light:        #262626;
-  --border-medium:       #333333;
-
-  --text-primary:        #ffffff;
-  --text-secondary:      #e0e0e0;
-  --text-muted:          #777777;
-  --text-inverted:       #000000;
-
-  --action-primary:      #ffffff;
-  --action-primary-hover:#dddddd;
+  --brand-navy: #1B2F63;
+  --brand-blue: #2C5FD9;
+  --brand-blue-bright: #5B86EC;
+  --brand-red:  #D31E2B;
 }
 
-/* ══ Tema: White ═════════════════════════════ */
+/* ══ Tema: Dark (padrão) — "tinta azul-marinho" ═ */
+:root {
+  --bg-base:             #0A1124;
+  --bg-surface:          #121B36;
+  --bg-surface-hover:    #1C2A4D;
+
+  --border-light:        #1E2A4A;
+  --border-medium:       #2C3B61;
+
+  --text-primary:        #F5F7FF;
+  --text-secondary:      #C7CEE6;
+  --text-muted:          #7C88AD;
+  --text-inverted:       #FFFFFF;
+
+  --action-primary:      var(--brand-blue);
+  --action-primary-hover:var(--brand-blue-bright);
+}
+
+/* ══ Tema: White — "papel/creme" ═════════════ */
 [data-theme="white"] {
-  --bg-base:             #f4f6f8;
-  --bg-surface:          #ffffff;
-  --bg-surface-hover:    #e2e8f0;
+  --bg-base:             #FAF6EE;
+  --bg-surface:          #FFFFFF;
+  --bg-surface-hover:    #ECE4D1;
 
-  --border-light:        #e2e8f0;
-  --border-medium:       #cbd5e1;
+  --border-light:        #E8E0CC;
+  --border-medium:       #D8CCAE;
 
-  --text-primary:        #0f172a;
-  --text-secondary:      #334155;
-  --text-muted:          #64748b;
-  --text-inverted:       #ffffff;
+  --text-primary:        #16203F;
+  --text-secondary:      #3C4768;
+  --text-muted:          #707C9C;
+  --text-inverted:       #FFFFFF;
 
-  --action-primary:      #0f172a;
-  --action-primary-hover:#334155;
+  --action-primary:      var(--brand-blue);
+  --action-primary-hover:var(--brand-navy);
 }
 
 /* ══ Reset ═══════════════════════════════════ */
@@ -106,7 +114,7 @@ body {
   letter-spacing: -0.3px;
 }
 
-.logo span { color: #22c55e; }
+.logo span { color: var(--brand-red); }
 
 /* ══ Divisor ═════════════════════════════════ */
 .divider {
@@ -206,7 +214,7 @@ body {
   color: var(--text-primary);
   outline: none;
   transition: border-color 0.15s, background 0.15s;
-  caret-color: #22c55e;
+  caret-color: var(--brand-blue);
 }
 
 .input::placeholder {
@@ -220,7 +228,7 @@ body {
 }
 
 .input:focus {
-  border-color: #22c55e;
+  border-color: var(--brand-blue);
   background: var(--bg-base);
 }
 
@@ -278,4 +286,26 @@ body {
 .theme-toggle:hover {
   color: var(--text-primary);
   border-color: var(--text-muted);
+}
+
+/* ══ Botão de sair ════════════════════════════ */
+.logout-btn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: transparent;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-pill);
+  padding: 3px 9px;
+  font-family: var(--font-family);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.logout-btn:hover {
+  color: var(--brand-red);
+  border-color: var(--brand-red);
 }

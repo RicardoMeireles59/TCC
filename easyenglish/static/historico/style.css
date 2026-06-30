@@ -65,11 +65,21 @@
 .historico-page .empty-state {
     text-align: center;
     padding: 3rem 1.5rem;
+    margin: 1rem;
     color: var(--text-muted);
     display: none;
+    border: 1px dashed var(--border-medium);
+    border-radius: var(--radius-lg);
+    background: var(--bg-surface-alt);
 }
 
-.historico-page .empty-state .icon { margin-bottom: 0.75rem; opacity: 0.7; }
+.historico-page .empty-state .icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 56px; height: 56px; margin-bottom: 1rem;
+    border-radius: var(--radius-full); border: 1px dashed var(--brand-blue-border);
+    background: var(--brand-blue-dim); color: var(--brand-blue);
+    transform: rotate(-4deg);
+}
 .historico-page .empty-state p { font-size: var(--font-size-md); font-weight: var(--font-weight-medium); }
 
 @media (max-width: 640px) {

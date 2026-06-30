@@ -71,6 +71,53 @@
       stopEverything('extension context invalidated (__ee_tracks__)');
       return;
     }
+    let active, authToken;
+    try {
+      ({ active, authToken } = await chrome.storage.local.get(['active', 'authToken']));
+    } catch {
+      stopEverything('chrome.storage.local.get falhou');
+      return;
+    }
+    if (active === false) return;
+    if (!authToken) return; // só captura quem estiver logado na extensão
+
+    const video = document.querySelector('video');
+    if (!video || video.paused) return;
+
+    const visible = readVisibleCaption();
+    if (!visible) return;
+
+    mergeVisible(visible);
+    flushReady();
+  }, SCRAPE_MS);
+}
+
+// ── Inicialização ─────────────────────────────────────────────────────────────
+function resetTranscript() {
+  transcriptWords = [];
+  emittedWords = 0;
+}
+
+function init() {
+  const vid = getVideoId();
+  console.log('[CS] init() — videoId=', vid);
+  videoId = vid;
+  resetTranscript();
+  if (vid) {
+    setTimeout(() => requestCaptions(vid), 1500);
+  } else {
+    console.log('[CS] init(): sem videoId na URL, captura inativa');
+  }
+  startAutoCapture();
+}
+
+// YouTube é SPA — monitora mudança de URL
+let lastUrl = location.href;
+new MutationObserver(() => {
+  if (location.href !== lastUrl) {
+    console.log('[CS] URL changed:', lastUrl, '->', location.href);
+    lastUrl = location.href;
+    videoId = null;
     let tracks = [];
     try {
       const payload = JSON.parse(e.detail);

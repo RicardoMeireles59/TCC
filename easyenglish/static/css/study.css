@@ -54,10 +54,10 @@
 .study-page .flashcard-back { transform: rotateY(180deg); }
 .study-page .flashcard:hover .flashcard-front,
 .study-page .flashcard:hover .flashcard-back { border-color: var(--border-medium); box-shadow: var(--shadow-lg); }
-.study-page .flashcard:focus-visible .flashcard-front { box-shadow: var(--shadow-md), 0 0 0 3px var(--green-dim); border-color: var(--green-border); }
+.study-page .flashcard:focus-visible .flashcard-front { box-shadow: var(--shadow-md), 0 0 0 3px var(--brand-blue-dim); border-color: var(--brand-blue-border); }
 
 .study-page .face-label { display: inline-flex; align-items: center; gap: 0.4rem; font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
-.study-page .translation-label { color: var(--green); }
+.study-page .translation-label { color: var(--brand-blue); }
 .study-page .phrase { font-size: var(--font-size-2xl); font-weight: var(--font-weight-semibold); color: var(--text-primary); line-height: 1.4; margin: 0.4rem 0 0.8rem; }
 .study-page .translation { font-size: var(--font-size-lg); font-weight: var(--font-weight-medium); color: var(--text-secondary); line-height: 1.4; margin-top: 0.4rem; }
 .study-page .flip-hint { display: inline-flex; align-items: center; gap: 0.35rem; font-size: var(--font-size-xs); color: var(--text-muted); margin-top: 0.75rem; letter-spacing: 0.04em; }

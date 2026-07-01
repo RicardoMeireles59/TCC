@@ -29,7 +29,23 @@ class Video(models.Model):
     def __str__(self):
         return self.title
 
+class Deck(models.Model):
+    """Baralho de flashcards criado pelo usuário."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='decks')
+    name = models.CharField(max_length=100, verbose_name='Nome')
+    description = models.TextField(blank=True, verbose_name='Descrição')
+    color = models.CharField(max_length=7, default='#6366f1', verbose_name='Cor')
+    created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ['name']
+        unique_together = [['user', 'name']]
+        verbose_name = 'Baralho'
+        verbose_name_plural = 'Baralhos'
+
+    def __str__(self):
+        return self.name
+    
 class Flashcard(models.Model):
     """Modelo único de flashcard.
 
@@ -37,6 +53,14 @@ class Flashcard(models.Model):
     das legendas capturadas), guarda vínculo opcional com o vídeo de origem e o
     progresso de estudo (status/progress). O baralho (deck) identifica a origem.
     """
+
+    deck_obj = models.ForeignKey(
+    'Deck',
+    on_delete=models.SET_NULL,
+    null=True, blank=True,
+    related_name='cards',
+    verbose_name='Baralho',
+    )
     DECK_CHOICES = [
         ('geral',   'Geral'),
         ('frases',  'Frases do dia a dia'),
@@ -70,3 +94,9 @@ class Flashcard(models.Model):
 
     def __str__(self):
         return self.phrase[:60]
+    
+    @property
+    def deck_label(self):
+        if self.deck_obj:
+            return self.deck_obj.name
+        return self.get_deck_display()

@@ -15,6 +15,10 @@ from .views import (
     flashcard_delete,
     historico_view,
     get_history_data,
+    decks_list_view,   
+    deck_create,       
+    deck_edit,         
+    deck_delete,       
 )
 
 urlpatterns = [
@@ -31,6 +35,12 @@ urlpatterns = [
     path("flashcard/<int:flashcard_id>/editar/", flashcard_edit, name="flashcard_edit"),
     path("flashcard/<int:flashcard_id>/excluir/", flashcard_delete, name="flashcard_delete"),
     path("flashcard/<int:flashcard_id>/update/", update_flashcard_status, name="update_flashcard_status"),
+
+    # Baralhos (CRUD)
+    path("baralhos/", decks_list_view, name="decks_list"),
+    path("baralho/novo/", deck_create, name="deck_create"),
+    path("baralho/<int:deck_id>/editar/", deck_edit, name="deck_edit"),
+    path("baralho/<int:deck_id>/excluir/", deck_delete, name="deck_delete"),
 
     # Histórico de estudos
     path("historico/", historico_view, name="historico"),

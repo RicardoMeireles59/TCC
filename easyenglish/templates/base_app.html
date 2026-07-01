@@ -25,6 +25,7 @@
                 <li><a href="{% url 'flashcards_list' %}" class="{% if request.resolver_match.url_name == 'flashcards_list' %}active{% endif %}" title="Flashcards">{% icon 'layers' size=19 %}<span class="nav-label">Flashcards</span></a></li>
                 <li><a href="{% url 'study' %}" class="{% if request.resolver_match.url_name == 'study' %}active{% endif %}" title="Estudar">{% icon 'book-open' size=19 %}<span class="nav-label">Estudar</span></a></li>
                 <li><a href="{% url 'historico' %}" class="{% if request.resolver_match.url_name == 'historico' %}active{% endif %}" title="Histórico">{% icon 'clock' size=19 %}<span class="nav-label">Histórico</span></a></li>
+                <li><a href="{% url 'decks_list' %}" class="{% if request.resolver_match.url_name in 'decks_list,deck_create,deck_edit' %}active{% endif %}" title="Baralhos">{% icon 'inbox' size=19 %}<span class="nav-label">Baralhos</span></a></li>
             </ul>
         </nav>
         <div class="sidebar-footer">

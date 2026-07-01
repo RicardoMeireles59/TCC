@@ -8,9 +8,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.views.decorators.http import require_POST, require_http_methods
 
-from extensao.models import CapturedSentence, Flashcard
+from extensao.models import CapturedSentence, Deck, Flashcard
 
-from .forms import RegisterForm, LoginForm, FlashcardForm
+from .forms import RegisterForm, LoginForm, FlashcardForm, DeckForm
 from .models import EstudoSessao
 from .services.dashboard_service import get_dashboard_flashcards
 
@@ -76,13 +76,17 @@ def dashboard_view(request):
 
 
 @login_required
+@login_required
 def flashcards_list_view(request):
-    """Lista + CRUD dos flashcards do usuário."""
-    flashcards = get_dashboard_flashcards(request.user, request)
+    user = request.user
+    flashcards = get_dashboard_flashcards(user, request)
     paginator = Paginator(flashcards, 12)
     page_obj = paginator.get_page(request.GET.get("page"))
-    return render(request, "flashcards/list.html", {"page_obj": page_obj})
-
+    decks = Deck.objects.filter(user=user)
+    return render(request, "flashcards/list.html", {
+        "page_obj": page_obj,
+        "decks": decks,
+    })
 
 @login_required
 def study_view(request):
@@ -134,7 +138,7 @@ def update_flashcard_status(request, flashcard_id):
 @login_required
 def flashcard_create(request):
     if request.method == "POST":
-        form = FlashcardForm(request.POST)
+        form = FlashcardForm(request.POST, user=request.user)
         if form.is_valid():
             fc = form.save(commit=False)
             fc.user = request.user
@@ -143,7 +147,7 @@ def flashcard_create(request):
             return redirect("flashcards_list")
         messages.error(request, "Verifique os dados do formulário.")
     else:
-        form = FlashcardForm()
+        form = FlashcardForm(user=request.user)
     return render(request, "dashboard/flashcard_form.html", {"form": form, "modo": "Novo"})
 
 
@@ -151,14 +155,14 @@ def flashcard_create(request):
 def flashcard_edit(request, flashcard_id):
     flashcard = get_object_or_404(Flashcard, id=flashcard_id, user=request.user)
     if request.method == "POST":
-        form = FlashcardForm(request.POST, instance=flashcard)
+        form = FlashcardForm(request.POST, instance=flashcard, user=request.user)
         if form.is_valid():
             form.save()
             messages.success(request, "Flashcard atualizado.")
             return redirect("flashcards_list")
         messages.error(request, "Verifique os dados do formulário.")
     else:
-        form = FlashcardForm(instance=flashcard)
+        form = FlashcardForm(instance=flashcard, user=request.user)
     return render(request, "dashboard/flashcard_form.html", {"form": form, "modo": "Editar"})
 
 
@@ -172,6 +176,58 @@ def flashcard_delete(request, flashcard_id):
 
 
 # ── Histórico de estudos ──────────────────────────────────────────────────────
+
+# ── CRUD de Baralhos (Decks) ──────────────────────────────────────────────────
+
+@login_required
+def decks_list_view(request):
+    decks = (
+        Deck.objects.filter(user=request.user)
+        .annotate(total_cards=Count('cards'))
+        .order_by('name')
+    )
+    return render(request, "decks/list.html", {"decks": decks})
+
+
+@login_required
+def deck_create(request):
+    if request.method == "POST":
+        form = DeckForm(request.POST, user=request.user)
+        if form.is_valid():
+            deck = form.save(commit=False)
+            deck.user = request.user
+            deck.save()
+            messages.success(request, f'Baralho "{deck.name}" criado com sucesso.')
+            return redirect("decks_list")
+        messages.error(request, "Verifique os dados do formulário.")
+    else:
+        form = DeckForm(user=request.user)
+    return render(request, "decks/form.html", {"form": form, "modo": "Novo"})
+
+
+@login_required
+def deck_edit(request, deck_id):
+    deck = get_object_or_404(Deck, id=deck_id, user=request.user)
+    if request.method == "POST":
+        form = DeckForm(request.POST, instance=deck, user=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Baralho "{deck.name}" atualizado.')
+            return redirect("decks_list")
+        messages.error(request, "Verifique os dados do formulário.")
+    else:
+        form = DeckForm(instance=deck, user=request.user)
+    return render(request, "decks/form.html", {"form": form, "modo": "Editar", "deck": deck})
+
+
+@login_required
+@require_POST
+def deck_delete(request, deck_id):
+    deck = get_object_or_404(Deck, id=deck_id, user=request.user)
+    name = deck.name
+    deck.delete()
+    messages.success(request, f'Baralho "{name}" excluído.')
+    return redirect("decks_list")
 
 @login_required(login_url='/login/')
 def historico_view(request):

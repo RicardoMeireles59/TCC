@@ -17,25 +17,90 @@
         {% icon 'search' size=16 %}
         <input type="text" name="search" value="{{ request.GET.search }}" placeholder="Buscar...">
     </div>
+
     <div class="select-wrap">
-        <select name="status">
-            <option value="">Todos os status</option>
-            <option value="new"      {% if request.GET.status == 'new' %}selected{% endif %}>Novo</option>
-            <option value="learning" {% if request.GET.status == 'learning' %}selected{% endif %}>Aprendendo</option>
-            <option value="reviewed" {% if request.GET.status == 'reviewed' %}selected{% endif %}>Revisado</option>
+        <select name="filter">
+            <option value="">Todos</option>
+            <option value="status:new"      {% if request.GET.filter == 'status:new' %}selected{% endif %}>Novo</option>
+            <option value="status:learning" {% if request.GET.filter == 'status:learning' %}selected{% endif %}>Aprendendo</option>
+            <option value="status:reviewed" {% if request.GET.filter == 'status:reviewed' %}selected{% endif %}>Revisado</option>
+            <option value="deck:all" {% if request.GET.filter == 'deck:all' %}selected{% endif %}>Ver baralhos</option>
+            <option value="deck:none"       {% if request.GET.filter == 'deck:none' %}selected{% endif %}>Sem baralho</option>
+            {% for deck in decks %}
+            {% endfor %}
         </select>
         {% icon 'chevron-down' size=15 %}
     </div>
+
     <button type="submit" class="btn-outline">{% icon 'filter' size=14 %}<span>Filtrar</span></button>
+
+    {% if request.GET.search or request.GET.filter %}
+        <a href="{% url 'flashcards_list' %}" class="btn-outline" style="text-decoration:none;">{% icon 'x' size=14 %}<span>Limpar</span></a>
+    {% endif %}
 </form>
+
+{% if decks %}
+<div class="deck-pills" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+    <a href="{% url 'flashcards_list' %}" class="deck-pill {% if not request.GET.filter %}deck-pill--active{% endif %}">
+        Todos
+    </a>
+    {% for deck in decks %}
+    <a href="?filter=deck:{{ deck.id }}"
+       class="deck-pill {% if request.GET.filter == 'deck:'|add:deck.id|stringformat:'s' %}deck-pill--active{% endif %}"
+       style="--deck-color: {{ deck.color }};">
+        <span class="deck-dot"></span>{{ deck.name }}
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
 
 <div class="fc-grid">
     {% for flashcard in page_obj %}
         {% include 'components/flashcard_card.html' with flashcard=flashcard %}
     {% empty %}
-        <div class="empty-hint">Nenhum flashcard encontrado.</div>
+        <div class="empty-hint" style="grid-column: 1 / -1; text-align:center; padding: 2rem; border: 1px dashed var(--border-medium); border-radius: var(--radius-lg); background: var(--bg-surface);">
+            <p style="margin:0 0 0.5rem; font-weight:600;">Nenhum flashcard encontrado para este filtro.</p>
+            <p style="margin:0 0 1rem; color: var(--text-muted);">Tente outro filtro ou limpe os critérios aplicados.</p>
+            <a href="{% url 'flashcards_list' %}" class="btn-outline">Limpar filtros</a>
+        </div>
     {% endfor %}
 </div>
+
+<style>
+.deck-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border-medium);
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+    text-decoration: none;
+    transition: background 0.15s, border-color 0.15s;
+}
+.deck-pill:hover { background: var(--bg-surface-hover); }
+.deck-pill--active {
+    background: var(--deck-color, var(--action-primary));
+    border-color: transparent;
+    color: var(--text-inverted);
+}
+.deck-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--deck-color, #6366f1);
+    flex-shrink: 0;
+}
+.deck-pill--active .deck-dot { background: rgba(255,255,255,0.6); }
+.deck-pill-count {
+    background: rgba(255,255,255,0.25);
+    border-radius: var(--radius-pill);
+    padding: 0 6px;
+    font-size: 0.68rem;
+    font-weight: 600;
+}
+</style>
 
 {% include 'components/pagination.html' %}
 {% endblock %}

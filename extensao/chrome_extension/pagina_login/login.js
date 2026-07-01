@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // ── Criar conta ────────────────────────────────────────────────────────────
   registerLink.addEventListener('click', () => {
-    chrome.tabs.create({ url: 'https://suaapp.com/cadastro' });
+    chrome.tabs.create({ url: 'http://localhost:8000/register/' });
   });
   registerLink.addEventListener('keydown', e => {
     if (e.key === 'Enter' || e.key === ' ') registerLink.click();

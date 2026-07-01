@@ -58,7 +58,11 @@
     {% for flashcard in page_obj %}
         {% include 'components/flashcard_card.html' with flashcard=flashcard %}
     {% empty %}
-        <div class="empty-hint">Nenhum flashcard encontrado.</div>
+        <div class="empty-hint" style="grid-column: 1 / -1; text-align:center; padding: 2rem; border: 1px dashed var(--border-medium); border-radius: var(--radius-lg); background: var(--bg-surface);">
+            <p style="margin:0 0 0.5rem; font-weight:600;">Nenhum flashcard encontrado para este filtro.</p>
+            <p style="margin:0 0 1rem; color: var(--text-muted);">Tente outro filtro ou limpe os critérios aplicados.</p>
+            <a href="{% url 'flashcards_list' %}" class="btn-outline">Limpar filtros</a>
+        </div>
     {% endfor %}
 </div>
 

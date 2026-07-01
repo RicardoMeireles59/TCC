@@ -2,9 +2,10 @@ from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
 
-from extensao.models import Flashcard
+from extensao.models import Deck, Flashcard
 
 from .models import EstudoSessao
+from .services.dashboard_service import get_dashboard_flashcards
 
 
 class EstudoSessaoTestCase(TestCase):
@@ -53,6 +54,49 @@ class EstudoSessaoTestCase(TestCase):
         )
 
         self.assertEqual(sessao.taxa_acerto, 0)
+
+
+class DashboardFilterTestCase(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='filtrador', password='senha12345')
+        self.client.force_login(self.user)
+        self.deck = Deck.objects.create(user=self.user, name='Inglês', color='#4f46e5')
+        self.card_with_deck = Flashcard.objects.create(
+            user=self.user,
+            phrase='hello',
+            translation='olá',
+            deck_obj=self.deck,
+            status='reviewed',
+        )
+        self.card_without_deck = Flashcard.objects.create(
+            user=self.user,
+            phrase='goodbye',
+            translation='tchau',
+            status='new',
+        )
+
+    def test_filtrar_por_baralhos_retorna_apenas_cards_com_deck(self):
+        request = self.client.get(reverse('flashcards_list'), {'filter': 'deck:all'}).wsgi_request
+        flashcards = get_dashboard_flashcards(self.user, request)
+
+        self.assertEqual(flashcards.count(), 1)
+        self.assertIn(self.card_with_deck, flashcards)
+        self.assertNotIn(self.card_without_deck, flashcards)
+
+    def test_filtrar_por_status_sem_prefixo_retorna_apenas_cards_correspondentes(self):
+        Flashcard.objects.create(user=self.user, phrase='later', translation='depois', status='learning')
+        request = self.client.get(reverse('flashcards_list'), {'filter': 'new'}).wsgi_request
+        flashcards = get_dashboard_flashcards(self.user, request)
+
+        self.assertEqual(flashcards.count(), 1)
+        self.assertIn(self.card_without_deck, flashcards)
+
+    def test_filtro_sem_resultados_exibe_mensagem_especifica(self):
+        response = self.client.get(reverse('flashcards_list'), {'filter': 'status:learning'})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Nenhum flashcard encontrado para este filtro.')
+        self.assertContains(response, 'Limpar filtros')
 
 
 class HistoricoWiringTestCase(TestCase):

@@ -2,11 +2,11 @@
 {% if page_obj.paginator.num_pages > 1 %}
 <div class="pagination">
     {% if page_obj.has_previous %}
-        <a class="btn-outline" href="?page={{ page_obj.previous_page_number }}">{% icon 'chevron-left' size=14 %}<span>Anterior</span></a>
+        <a class="btn-outline" href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ page_obj.previous_page_number }}">{% icon 'chevron-left' size=14 %}<span>Anterior</span></a>
     {% endif %}
     <span class="page-info">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
     {% if page_obj.has_next %}
-        <a class="btn-outline" href="?page={{ page_obj.next_page_number }}"><span>Próxima</span>{% icon 'chevron-right' size=14 %}</a>
+        <a class="btn-outline" href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ page_obj.next_page_number }}"><span>Próxima</span>{% icon 'chevron-right' size=14 %}</a>
     {% endif %}
 </div>
 {% endif %}

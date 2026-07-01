@@ -134,7 +134,7 @@ button { font: inherit; }
 .main-logo-display { margin-bottom: 2rem; }
 .main-logo-display h1 { font-size: var(--font-size-3xl); font-weight: var(--font-weight-bold); color: var(--text-primary); letter-spacing: -1px; }
 
-/* Emblema Union Jack — toque de marca usado com moderação (logo sidebar + auth). */
+/* Emblema de bandeira (EUA) — toque de marca no logo da sidebar. */
 .flag-badge {
     display: inline-flex; flex-shrink: 0; width: 28px; height: 16.8px;
     border-radius: 3px; overflow: hidden; box-shadow: var(--shadow-sm);
@@ -142,7 +142,6 @@ button { font: inherit; }
 .flag-badge svg { width: 100%; height: 100%; display: block; }
 .sidebar-logo-block { display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; }
 .sidebar-logo-block .flag-badge { margin-left: 0.4rem; }
-.auth-form-card > .flag-badge { margin: -0.5rem auto 0; }
 
 /* Ícones (svg inline) */
 .icon { display: inline-block; vertical-align: middle; flex-shrink: 0; }
@@ -310,30 +309,9 @@ body.modal-open { overflow: hidden; }
 .password-toggle { position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border: none; background: transparent; color: var(--text-muted); cursor: pointer; border-radius: var(--radius-sm); transition: color 0.2s; }
 .password-toggle:hover { color: var(--text-primary); }
 
-/* Lado da imagem + citação com efeito typewriter */
+/* Auth agora é coluna única centralizada — painel de imagem/colagem removido. */
+.auth-split { grid-template-columns: 1fr; }
 .auth-media-side { display: none; }
-.tw-cursor { animation: tw-pulse 1s steps(1) infinite; }
-@keyframes tw-pulse { 50% { opacity: 0; } }
-
-@media (min-width: 768px) {
-    .auth-split { grid-template-columns: 1fr 1fr; }
-    .auth-media-side { display: block; position: relative; overflow: hidden;
-        background-color: var(--bg-surface); background-size: cover; background-position: center;
-        /* Borda esquerda em ziguezague — simula papel rasgado, no espírito da colagem. */
-        clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%, 3% 90%, 0% 80%, 3% 70%, 0% 60%, 3% 50%, 0% 40%, 3% 30%, 0% 20%, 3% 10%); }
-    .auth-media-side::after { content: ""; position: absolute; inset: 0; pointer-events: none;
-        background: linear-gradient(to top, rgba(8, 11, 26, 0.95) 0%, rgba(8, 11, 26, 0.45) 22%, transparent 48%); }
-    .auth-quote { position: absolute; left: 0; right: 0; bottom: 1.75rem; z-index: 2; text-align: center; padding: 0 1.5rem; color: #fff; }
-    .auth-quote p { font-size: var(--font-size-lg); font-weight: var(--font-weight-medium); line-height: 1.5; min-height: 1.6em; }
-    .auth-quote cite { display: block; margin-top: 0.4rem; font-size: var(--font-size-sm); font-style: normal; color: rgba(255, 255, 255, 0.7); }
-}
-@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
-    .auth-media-side { background-size: 112% auto; animation: hero-drift 22s ease-in-out infinite alternate; }
-}
-@keyframes hero-drift {
-    from { background-position: 50% 0%; background-size: 112% auto; }
-    to   { background-position: 50% 100%; background-size: 120% auto; }
-}
 .form-wrapper { width: 100%; max-width: 320px; }
 .form-wrapper.center-form { max-width: 380px; }
 .form-wrapper h4 { margin-bottom: 1.4rem; color: var(--text-primary); font-weight: var(--font-weight-semibold); font-size: var(--font-size-lg); text-align: center; }

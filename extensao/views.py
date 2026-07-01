@@ -8,7 +8,6 @@ from rest_framework.permissions import IsAuthenticated
 
 from .models import CapturedSentence, Flashcard
 
-
 # ── Sentence processing ──────────────────────────────────────────────────────
 
 _SENTENCE_END = re.compile(r'(?<=[.!?])\s+')

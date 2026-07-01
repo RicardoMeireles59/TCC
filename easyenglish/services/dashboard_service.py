@@ -2,7 +2,7 @@ from extensao.models import Flashcard
 
 
 def get_dashboard_flashcards(user, request):
-    flashcards = Flashcard.objects.select_related("video").filter(user=user)
+    flashcards = Flashcard.objects.select_related("video", "deck_obj").filter(user=user)
 
     # ==========================
     # SEARCH
@@ -12,18 +12,18 @@ def get_dashboard_flashcards(user, request):
         flashcards = flashcards.filter(phrase__icontains=search)
 
     # ==========================
-    # STATUS FILTER
+    # FILTER (status + baralho unificado)
     # ==========================
-    status = request.GET.get("status")
-    if status:
-        flashcards = flashcards.filter(status=status)
-
-    # ==========================
-    # DECK FILTER (origem)
-    # ==========================
-    deck = request.GET.get("deck")
-    if deck:
-        flashcards = flashcards.filter(deck=deck)
+    filter_val = request.GET.get("filter")
+    if filter_val:
+        if filter_val.startswith("status:"):
+            flashcards = flashcards.filter(status=filter_val.replace("status:", ""))
+        elif filter_val == "deck:none":
+            flashcards = flashcards.filter(deck_obj__isnull=True)
+        elif filter_val.startswith("deck:"):
+            flashcards = flashcards.filter(deck_obj_id=filter_val.replace("deck:", ""))
+        elif filter_val == "deck:all":
+            flashcards = flashcards.filter(deck_obj__isnull=False)
 
     # ==========================
     # ORDERING

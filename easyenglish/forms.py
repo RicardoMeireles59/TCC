@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 
-from extensao.models import Flashcard
+from extensao.models import Deck, Flashcard
 
 
 User = get_user_model()
@@ -14,11 +14,48 @@ User = get_user_model()
 
 _INPUT = "w-full border rounded p-2"
 
+# Cole antes da classe FlashcardForm
+class DeckForm(forms.ModelForm):
+    class Meta:
+        model = Deck
+        fields = ['name', 'description', 'color']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': _INPUT,
+                'placeholder': 'Ex: Phrasal Verbs avançados',
+            }),
+            'description': forms.Textarea(attrs={
+                'class': _INPUT,
+                'rows': 2,
+                'placeholder': 'Descrição do baralho (opcional)',
+            }),
+            'color': forms.TextInput(attrs={
+                'type': 'color',
+                'class': 'color-picker',
+            }),
+        }
+        labels = {
+            'name': 'Nome do baralho',
+            'description': 'Descrição',
+            'color': 'Cor de identificação',
+        }
 
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._user = user
+
+    def validate_unique(self):
+        try:
+            self.instance.user = self._user
+            super().validate_unique()
+        except forms.ValidationError:
+            raise forms.ValidationError(
+                {'name': 'Você já tem um baralho com esse nome.'}
+            )
 class FlashcardForm(forms.ModelForm):
     class Meta:
         model = Flashcard
-        fields = ["phrase", "translation", "deck", "status", "progress", "video"]
+        fields = ["phrase", "translation", "deck_obj", "deck", "status", "progress", "video"]
         widgets = {
             "phrase": forms.Textarea(attrs={"class": _INPUT, "rows": 2, "placeholder": "Frase em inglês"}),
             "translation": forms.Textarea(attrs={"class": _INPUT, "rows": 2, "placeholder": "Tradução em português"}),
@@ -26,12 +63,20 @@ class FlashcardForm(forms.ModelForm):
             "status": forms.Select(attrs={"class": _INPUT}),
             "progress": forms.NumberInput(attrs={"class": _INPUT, "min": 0, "max": 100}),
             "video": forms.Select(attrs={"class": _INPUT}),
+            'deck_obj': forms.Select(attrs={'class': _INPUT}),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["translation"].required = False
         self.fields["video"].required = False
+        self.fields["deck_obj"].required = False
+        self.fields["deck_obj"].empty_label = 'Sem baralho'
+        self.fields["deck"].required = False
+        if user:
+            self.fields["deck_obj"].queryset = Deck.objects.filter(user=user)
+        else:
+            self.fields["deck_obj"].queryset = Deck.objects.none()
 
 
 # ==================================================

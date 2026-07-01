@@ -1,0 +1,83 @@
+{% extends 'base_app.html' %}
+{% load icons %}
+{% block title %}{{ modo }} baralho — EasyEnglish{% endblock %}
+{% block page_title %}{{ modo }} baralho{% endblock %}
+
+{% block app_content %}
+<div class="page-header">
+    <div class="heading-group">
+        <span class="eyebrow">Baralhos</span>
+        <h1>{{ modo }} baralho</h1>
+    </div>
+</div>
+
+<div class="form-wrapper center-form form-card" style="margin: 0 auto;">
+    <form method="post">
+        {% csrf_token %}
+
+        <label>{{ form.name.label }}</label>
+        {{ form.name }}
+
+        <label style="margin-top: var(--space-4);">{{ form.description.label }}</label>
+        {{ form.description }}
+
+        <div class="input-row" style="margin-top: var(--space-4); align-items: center;">
+            <div>
+                <label>{{ form.color.label }}</label>
+                <div class="color-picker-row">
+                    {{ form.color }}
+                    <span class="color-preview" id="colorPreview"></span>
+                </div>
+            </div>
+            {% if deck %}
+            <div>
+                <label>Flashcards vinculados</label>
+                <p style="font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); color: var(--text-primary);">
+                    {{ deck.count_cards }}
+                </p>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if form.errors %}
+        <div class="form-errors" style="margin-top: var(--space-4);">
+            {% for field, errors in form.errors.items %}
+                {% for e in errors %}<div>{{ field }}: {{ e }}</div>{% endfor %}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div style="display:flex;gap:var(--space-3);margin-top:var(--space-6);">
+            <button type="submit" class="btn-primary">{% icon 'save' size=15 %}<span>Salvar baralho</span></button>
+        </div>
+        <p class="switch-screen" style="margin-top:var(--space-4);">
+            <a href="{% url 'decks_list' %}">{% icon 'arrow-left' size=13 %} Voltar para baralhos</a>
+        </p>
+    </form>
+</div>
+
+<style>
+.color-picker-row { display: flex; align-items: center; gap: var(--space-3); margin-top: var(--space-2); }
+.color-picker {
+    width: 48px; height: 40px; padding: 2px;
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-sm);
+    background: var(--bg-surface);
+    cursor: pointer;
+}
+.color-preview {
+    display: inline-block; width: 36px; height: 36px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-medium);
+    transition: background 0.1s;
+}
+</style>
+<script>
+(function () {
+    const picker = document.querySelector('input[type="color"]');
+    const preview = document.getElementById('colorPreview');
+    function sync() { if (preview) preview.style.background = picker.value; }
+    if (picker) { picker.addEventListener('input', sync); sync(); }
+})();
+</script>
+{% endblock %}

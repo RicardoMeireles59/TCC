@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.authentication import TokenAuthentication, SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-from .models import CapturedSentence, Flashcard
+from .models import CapturedSentence, Deck, Flashcard
 
 # ── Sentence processing ──────────────────────────────────────────────────────
 
@@ -50,6 +50,7 @@ class CaptionReceiveView(APIView):
         pt_sentences = _split_into_sentences(pt_raw) if pt_raw else []
 
         created = 0
+        deck_obj = None  # criado sob demanda, só se houver flashcard novo
         for i, en_sent in enumerate(en_sentences):
             pt_sent = pt_sentences[i] if i < len(pt_sentences) else ''
             # Deduplicate: skip if this exact EN text already exists for this user+video
@@ -68,12 +69,19 @@ class CaptionReceiveView(APIView):
                     video_title=video_title,
                     saved_as_flashcard=True,
                 )
-                # Toda frase capturada vira um flashcard estudável (baralho "Do vídeo").
+                # Toda frase capturada vira um flashcard estudável, associado a um
+                # baralho real com o nome do vídeo (criado na primeira captura).
+                if deck_obj is None:
+                    deck_obj, _ = Deck.objects.get_or_create(
+                        user=request.user,
+                        name=(video_title or 'Do vídeo')[:100],
+                    )
                 Flashcard.objects.create(
                     user=request.user,
                     phrase=en_sent,
                     translation=pt_sent,
                     deck='video',
+                    deck_obj=deck_obj,
                     source_video_id=video_id,
                     video_url=video_url,
                     video_title=video_title,
@@ -108,22 +116,35 @@ class SentenceView(APIView):
         return Response({'id': sentence.id, 'reviewed': sentence.reviewed})
 
 
+class DeckView(APIView):
+    """Lista os baralhos do usuário (usado pelo popup da extensão)."""
+    authentication_classes = [TokenAuthentication, SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        decks = Deck.objects.filter(user=request.user)
+        return Response([
+            {'id': d.id, 'name': d.name, 'color': d.color}
+            for d in decks
+        ])
+
+
 class FlashcardView(APIView):
     """CRUD de Flashcard. Coleção (GET/POST) e detalhe (GET/PATCH/DELETE por pk)."""
     authentication_classes = [TokenAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticated]
-
-    FIELDS = ('id', 'phrase', 'translation', 'deck', 'status', 'progress', 'video',
-              'source_video_id', 'video_url', 'video_title', 'created_at')
 
     @staticmethod
     def _serialize(fc):
         return {
             'id': fc.id, 'phrase': fc.phrase, 'translation': fc.translation,
             'deck': fc.deck, 'status': fc.status, 'progress': fc.progress,
+            'deck_id': fc.deck_obj_id,
+            'deck_name': fc.deck_obj.name if fc.deck_obj else None,
             'video': fc.video_id,
             'source_video_id': fc.source_video_id,
             'video_url': fc.video_url, 'video_title': fc.video_title,
+            'created_at': fc.created_at,
         }
 
     def _get_obj(self, request, pk):
@@ -132,28 +153,45 @@ class FlashcardView(APIView):
         except Flashcard.DoesNotExist:
             return None
 
+    def _resolve_deck(self, request, deck_id):
+        """Retorna (deck, error_response). deck_id vazio/None significa 'sem baralho'."""
+        if deck_id in (None, '', 0):
+            return None, None
+        try:
+            return Deck.objects.get(id=int(deck_id), user=request.user), None
+        except (TypeError, ValueError, Deck.DoesNotExist):
+            return None, Response({'error': 'deck_id inválido'}, status=status.HTTP_400_BAD_REQUEST)
+
     def get(self, request, pk=None):
         if pk is not None:
             fc = self._get_obj(request, pk)
             if fc is None:
                 return Response(status=status.HTTP_404_NOT_FOUND)
             return Response(self._serialize(fc))
-        qs = Flashcard.objects.filter(user=request.user)
+        qs = Flashcard.objects.filter(user=request.user).select_related('deck_obj')
         deck = request.GET.get('deck')
         if deck:
             qs = qs.filter(deck=deck)
-        return Response(list(qs.values(*self.FIELDS)))
+        deck_id = request.GET.get('deck_id')
+        if deck_id and deck_id.isdigit():
+            qs = qs.filter(deck_obj_id=deck_id)
+        return Response([self._serialize(fc) for fc in qs])
 
     def post(self, request):
         phrase = request.data.get('phrase', '').strip()
         if not phrase:
             return Response({'error': 'phrase é obrigatório'}, status=status.HTTP_400_BAD_REQUEST)
 
+        deck_obj, err = self._resolve_deck(request, request.data.get('deck_id'))
+        if err:
+            return err
+
         fc = Flashcard.objects.create(
             user=request.user,
             phrase=phrase,
             translation=request.data.get('translation', '').strip(),
             deck=request.data.get('deck', 'geral'),
+            deck_obj=deck_obj,
         )
         return Response(self._serialize(fc), status=status.HTTP_201_CREATED)
 
@@ -166,6 +204,11 @@ class FlashcardView(APIView):
         for field in ('phrase', 'translation', 'deck', 'status'):
             if field in request.data:
                 setattr(fc, field, request.data[field])
+        if 'deck_id' in request.data:
+            deck_obj, err = self._resolve_deck(request, request.data['deck_id'])
+            if err:
+                return err
+            fc.deck_obj = deck_obj
         if 'progress' in request.data:
             try:
                 fc.progress = int(request.data['progress'])

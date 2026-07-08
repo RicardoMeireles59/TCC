@@ -25,7 +25,7 @@
             <p class="deck-card__desc">{{ deck.description }}</p>
         {% endif %}
         <div class="deck-card__footer">
-            <a href="{% url 'flashcards_list' %}?deck={{ deck.id }}" class="btn-outline" style="flex:1;text-align:center;">
+            <a href="{% url 'flashcards_list' %}?filter=deck:{{ deck.id }}" class="btn-outline" style="flex:1;text-align:center;">
                 {% icon 'layers' size=14 %}<span>Ver cards</span>
             </a>
             <a href="{% url 'deck_edit' deck.id %}" class="btn-outline" title="Editar baralho">

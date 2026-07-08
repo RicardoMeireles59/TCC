@@ -12,12 +12,13 @@
            title="{{ flashcard.video_title|default:flashcard.source_video_id }} — abrir no YouTube">
             <span class="fc-video-title">{{ flashcard.video_title|default:flashcard.source_video_id }}</span>{% icon 'external-link' size=12 %}
         </a>
-    {% elif flashcard.deck_obj %}
+    {% endif %}
+    {% if flashcard.deck_obj %}
     <span class="fc-deck" style="--deck-color: {{ flashcard.deck_obj.color }};">
         <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--deck-color);margin-right:5px;vertical-align:middle;"></span>
         {{ flashcard.deck_obj.name }}
     </span>
-    {% else %}
+    {% elif not flashcard.source_video_id %}
     <span class="fc-deck">{{ flashcard.get_deck_display }}</span>
     {% endif %}
     <p class="fc-phrase">{{ flashcard.phrase }}</p>

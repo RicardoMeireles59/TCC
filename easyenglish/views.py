@@ -76,16 +76,25 @@ def dashboard_view(request):
 
 
 @login_required
-@login_required
 def flashcards_list_view(request):
     user = request.user
     flashcards = get_dashboard_flashcards(user, request)
     paginator = Paginator(flashcards, 12)
     page_obj = paginator.get_page(request.GET.get("page"))
     decks = Deck.objects.filter(user=user)
+
+    # Baralho ativo no filtro (?filter=deck:<id>), para destacar pill/select
+    active_deck_id = None
+    filter_val = (request.GET.get("filter") or "").strip()
+    if filter_val.startswith("deck:"):
+        suffix = filter_val.split(":", 1)[1]
+        if suffix.isdigit():
+            active_deck_id = int(suffix)
+
     return render(request, "flashcards/list.html", {
         "page_obj": page_obj,
         "decks": decks,
+        "active_deck_id": active_deck_id,
     })
 
 @login_required

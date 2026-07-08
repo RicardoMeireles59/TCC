@@ -24,9 +24,10 @@
             <option value="status:new"      {% if request.GET.filter == 'status:new' %}selected{% endif %}>Novo</option>
             <option value="status:learning" {% if request.GET.filter == 'status:learning' %}selected{% endif %}>Aprendendo</option>
             <option value="status:reviewed" {% if request.GET.filter == 'status:reviewed' %}selected{% endif %}>Revisado</option>
-            <option value="deck:all" {% if request.GET.filter == 'deck:all' %}selected{% endif %}>Ver baralhos</option>
+            <option value="deck:all" {% if request.GET.filter == 'deck:all' %}selected{% endif %}>Com baralho</option>
             <option value="deck:none"       {% if request.GET.filter == 'deck:none' %}selected{% endif %}>Sem baralho</option>
             {% for deck in decks %}
+            <option value="deck:{{ deck.id }}" {% if active_deck_id == deck.id %}selected{% endif %}>{{ deck.name }}</option>
             {% endfor %}
         </select>
         {% icon 'chevron-down' size=15 %}
@@ -46,7 +47,7 @@
     </a>
     {% for deck in decks %}
     <a href="?filter=deck:{{ deck.id }}"
-       class="deck-pill {% if request.GET.filter == 'deck:'|add:deck.id|stringformat:'s' %}deck-pill--active{% endif %}"
+       class="deck-pill {% if active_deck_id == deck.id %}deck-pill--active{% endif %}"
        style="--deck-color: {{ deck.color }};">
         <span class="deck-dot"></span>{{ deck.name }}
     </a>

@@ -126,6 +126,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     deckSelect.classList.toggle('has-value', deckSelect.value !== '');
   });
 
+  // ── Carrega os baralhos reais do usuário (CRUD do site) ───────────────────
+  async function loadDecks() {
+    try {
+      const res = await fetch(`${API_BASE}/api/decks/`, { headers: authHeaders() });
+      if (res.status === 401) {
+        await chrome.storage.local.remove('authToken');
+        window.location.href = '../pagina_login/login.html';
+        return;
+      }
+      if (!res.ok) throw new Error();
+      const decks = await res.json();
+      deckSelect.innerHTML = '';
+      deckSelect.add(new Option('Sem baralho', ''));
+      decks.forEach(d => deckSelect.add(new Option(d.name, d.id)));
+    } catch {
+      // API indisponível: mantém apenas a opção "Sem baralho"
+    }
+  }
+  loadDecks();
+
   // ── Limpa tradução e inicia debounce a cada keystroke ─────────────────────
   phraseField.addEventListener('input', () => {
     transField.value = '';
@@ -174,10 +194,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   sendBtn.addEventListener('click', async () => {
     const phrase = phraseField.value.trim();
     const translation = transField.value.trim();
-    const deck = deckSelect.value;
+    const deckId = deckSelect.value ? Number(deckSelect.value) : null;
 
-    if (!phrase || !translation || !deck) {
-      showFeedback('Preencha todos os campos.', 'error');
+    if (!phrase || !translation) {
+      showFeedback('Preencha frase e tradução.', 'error');
       return;
     }
 
@@ -188,7 +208,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const res = await fetch(`${API_BASE}/api/flashcards/`, {
         method: 'POST',
         headers: authHeaders(),
-        body: JSON.stringify({ phrase, translation, deck }),
+        body: JSON.stringify({ phrase, translation, deck_id: deckId }),
       });
 
       if (res.status === 401) {

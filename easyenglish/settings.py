@@ -10,26 +10,32 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
-import os
 from pathlib import Path
-from dotenv import load_dotenv
 
-load_dotenv()
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+env = environ.Env(
+    # DEBUG desligado por padrão — só liga se o .env definir DEBUG=True
+    DEBUG=(bool, False),
+)
+# Lê o .env na raiz do projeto (ao lado do manage.py); variáveis de
+# ambiente reais do sistema têm prioridade sobre o arquivo
+environ.Env.read_env(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-dev-key-change-in-production')
+SECRET_KEY = env('SECRET_KEY', default='django-insecure-dev-key-change-in-production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
+DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
 
 
 # Application definition
@@ -95,14 +101,21 @@ WSGI_APPLICATION = 'easyenglish.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/6.0/ref/settings/#databases
+# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+#
+# Desenvolvimento: sem DATABASE_URL no .env → usa SQLite (db.sqlite3)
+# Produção: defina DATABASE_URL=mysql://usuario:senha@host:3306/banco no .env
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': env.db(
+        'DATABASE_URL',
+        default=f'sqlite:///{(BASE_DIR / "db.sqlite3").as_posix()}',
+    ),
 }
+
+if DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
+    # utf8mb4 garante suporte a emojis e caracteres especiais
+    DATABASES['default'].setdefault('OPTIONS', {})['charset'] = 'utf8mb4'
 
 
 # Password validation
